@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Snake Game - Control</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Style for the leaderboard */
+        .leaderboard {
+            position: absolute;
+            top: 150px;
+            left: 50vw; 
+            margin-left: 300px;
+            width: 200px;
+            height: 150px;
+            padding: 10px;
+        }
+
+            /* Placeholder styling for leaderboard content */
+            .leaderboard h2 {
+                text-align: center;
+                font-size: 20px;
+                margin: 0;
+            }
+
+            .leaderboard ul {
+                list-style: none;
+                padding: 0;
+                text-align: left;
+            }
+
+                .leaderboard ul li {
+                    padding: 8px;
+                    font-size: 16px;
+                    border-bottom: none;
+                }
+    </style>
+</head>
+<body>
+    <h1>Control Your Snake</h1>
+    <canvas id="gameCanvas" width="600" height="600"></canvas>
+    <div class="leaderboard">
+        <h2>Leaderboard</h2>
+        <ul>
+        </ul>
+    </div>
+
+    <div class="controls">
+        <button onclick="sendDirection('Up')">Up</button>
+        <br />
+        <button onclick="sendDirection('Left')">Left</button>
+        <button onclick="sendDirection('Down')">Down</button>
+        <button onclick="sendDirection('Right')">Right</button>
+        <br />
+        <br />
+        <button id="resetGameBtn">Generate Game</button>
+        <button onclick="joinGame()">Join Game</button>
+        <button id="startGameBtn">Start Game</button>
+        <br />
+        <span>Enter your name: </span>
+        <input type="text" id="playerName" placeholder="Your Name" />
+    </div>
+
+    <div class="game-controls">
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.0/signalr.min.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>

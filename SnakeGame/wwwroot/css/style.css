@@ -1,0 +1,50 @@
+﻿body {
+}
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+h1 {
+    margin-top: 20px;
+}
+
+canvas {
+    border: 1px solid #000;
+    margin-top: 20px;
+}
+
+/* Style the leaderboard list items */
+ul {
+    list-style: none; /* Remove bullet points */
+    padding: 0;
+    margin: 0;
+    border: none;
+}
+
+li {
+    text-align: left; /* Align the text to the left */
+    padding: 8px 0; /* Add some padding */
+    border: none; /* Remove any borders or lines */
+    font-size: 16px;
+}
+
+
+.buttons, .controls, .game-controls {
+    margin-top: 20px;
+}
+
+    .buttons a, .controls button {
+        display: inline-block;
+        padding: 10px 20px;
+        margin: 5px;
+        background-color: #BBBBBB;
+        color: #fff;
+        text-decoration: none;
+        border: none;
+        border-radius: 5px;
+    }
+
+        .buttons a:hover, .controls button:hover {
+            background-color: #005A9E;
+        }
