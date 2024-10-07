@@ -1,16 +1,20 @@
 ﻿using System;
-using SnakeGame.Models;
 
-namespace SnakeGame.Models
+namespace SnakeGame.Models.Consumables
 {
-    public class Fruit
+    public abstract class Consumable
     {
-        public Point Position { get; private set; }
+        public Point Position { get; set; }
+        public string Color { get; set; }
 
-        public Fruit()
+        public void Place(Point position)
         {
-            GenerateNewPosition();
+            Position = position;
+            Map.Instance.Grid[Position.X, Position.Y] = Map.CellType.Consumable;
         }
+
+        public abstract bool CanConsume();
+        public abstract int Consume();
 
         public void GenerateNewPosition()
         {
@@ -24,7 +28,7 @@ namespace SnakeGame.Models
             } while (Map.Instance.Grid[x, y] != Map.CellType.Empty);
 
             Position = new Point(x, y);
-            Map.Instance.Grid[x, y] = Map.CellType.Fruit;
+            Map.Instance.Grid[x, y] = Map.CellType.Consumable;
         }
 
         public void Remove()

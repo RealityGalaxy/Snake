@@ -113,7 +113,7 @@ function drawGame(gameState) {
 
     // Draw fruits
     gameState.fruits.forEach(fruit => {
-        drawCell(fruit.x, fruit.y, 'red');
+        drawCell(fruit.x, fruit.y, fruit.color);
     });
 
     // Draw snakes

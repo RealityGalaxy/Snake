@@ -5,8 +5,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
+using SnakeGame.Factories;
 using SnakeGame.Hubs;
 using SnakeGame.Models;
+using SnakeGame.Models.Consumables;
 
 namespace SnakeGame.Services
 {
@@ -17,12 +19,14 @@ namespace SnakeGame.Services
 
         public ConcurrentDictionary<string, Snake> Snakes { get; } = new();
         public bool IsGameRunning { get; set; } = false;
-        public Fruit Fruit { get; private set; }
+        private readonly IConsumableFactory FoodFactory;
+        public Dictionary<Point, Consumable> Consumables { get; private set; }
 
         public GameService(IHubContext<GameHub> hubContext)
         {
             _hubContext = hubContext;
-            Fruit = new Fruit();
+            Consumables = new Dictionary<Point, Consumable>();
+            FoodFactory = new FoodFactory();
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -40,14 +44,38 @@ namespace SnakeGame.Services
             }
         }
 
+        private const int foodTimer = 20;
+        private int foodCounter = foodTimer;
         private void GameLoop(object state)
         {
             BroadcastGameState();
+            foodCounter--;
+            if (foodCounter == 0)
+            {
+                foodCounter = foodTimer;
+                Consumable food = GenerateRandomFood();
+                Consumables.Add(food.Position, food);
+            }
             if (IsGameRunning)
             {
                 Console.WriteLine("Game loop is running...");
                 UpdateGameState();
             }
+        }
+
+        private Random foodRand = new Random();
+        private Consumable GenerateRandomFood()
+        {
+            int roll = foodRand.Next(0, 10);
+            if (roll >= 9)
+            {
+                return FoodFactory.generateBigConsumable();
+            }
+            if (roll >= 6)
+            {
+                return FoodFactory.generateMediumConsumable();
+            }
+            return FoodFactory.generateSmallConsumable();
         }
 
         private void UpdateGameState()
@@ -98,7 +126,7 @@ namespace SnakeGame.Services
             IsGameRunning = false;
             Snakes.Clear();
             Map.Instance.InitializeGrid();
-            Fruit = new Fruit();
+            Consumables = new Dictionary<Point, Consumable>();
         }
 
         public Point GetRandomEmptyPosition()
@@ -130,10 +158,7 @@ namespace SnakeGame.Services
                 }
             }
 
-            var fruits = new List<object>
-            {
-                new { x = Fruit.Position.X, y = Fruit.Position.Y }
-            };
+            var fruits = Consumables.Values.ToList().ConvertAll(consumable => new { x = consumable.Position.X, y = consumable.Position.Y, color = consumable.Color } as object);
 
             var snakesList = new List<object>();
             foreach (var snake in Snakes.Values)

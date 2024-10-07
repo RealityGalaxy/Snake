@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SnakeGame.Models.Consumables;
 using SnakeGame.Services;
 
 namespace SnakeGame.Models
@@ -34,6 +35,7 @@ namespace SnakeGame.Models
             }
         }
 
+        private int tempFood = 0;
         public void Move()
         {
             if (!IsAlive) return;
@@ -47,14 +49,22 @@ namespace SnakeGame.Models
                 IsAlive = false;
                 return;
             }
-
             // Check for fruit consumption
-            if (_gameService.Fruit.Position.X == newHead.X && _gameService.Fruit.Position.Y == newHead.Y)
+            if (IsFood(newHead))
             {
                 // Eat the fruit
-                _gameService.Fruit.Remove();
-                _gameService.Fruit.GenerateNewPosition();
-                // Grow the snake by not removing the tail
+                Consumable food = _gameService.Consumables[newHead];
+                if (food != null)
+                {
+                    tempFood += food.Consume();
+                }
+                _gameService.Consumables.Remove(newHead);
+            }
+
+            // Grow the snake by not removing the tail
+            if (tempFood > 0)
+            {
+                tempFood--;
             }
             else
             {
@@ -67,6 +77,14 @@ namespace SnakeGame.Models
             // Add new head
             Body.AddFirst(newHead);
             Map.Instance.Grid[newHead.X, newHead.Y] = Map.CellType.Snake;
+        }
+
+        private bool IsFood(Point head)
+        {
+            if (Map.Instance.Grid[head.X, head.Y] == Map.CellType.Consumable)
+                return true;
+
+            return false;
         }
 
         private Point GetNextHeadPosition(Point head)

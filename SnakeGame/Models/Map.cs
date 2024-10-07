@@ -44,7 +44,7 @@
             Empty,
             Wall,
             Snake,
-            Fruit
+            Consumable
         }
     }
 }
