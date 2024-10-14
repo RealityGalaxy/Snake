@@ -14,6 +14,31 @@ connection.on("ReceiveGameState", function (gameState) {
     updateLeaderboard(gameState);
 });
 
+let selectedLevel = 1;  // Default to level 1
+document.getElementById('level1').checked = true;
+
+function selectLevel(level) {
+    // Uncheck all levels first
+    document.getElementById('level1').checked = false;
+    document.getElementById('level2').checked = false;
+    document.getElementById('level3').checked = false;
+
+    // Check only the selected level
+    document.getElementById('level' + level).checked = true;
+
+    // Update the selected level
+    selectedLevel = level;
+}
+
+// Function to send the selected level to the server when generating the game
+function generateGame() {
+    connection.invoke("ResetGame", selectedLevel).catch(function (err) {
+        return console.error(err.toString());
+    });
+}
+
+
+
 function updateLeaderboard(gameState) {
     // Sort the snakes by body length (size), in descending order (biggest snake first)
     const snakes = gameState.snakes;
@@ -211,7 +236,53 @@ startGameBtn.addEventListener('click', function () {
 });
 
 resetGameBtn.addEventListener('click', function () {
-    connection.invoke("ResetGame").catch(function (err) {
+    connection.invoke("ResetGame", selectedLevel).catch(function (err) {
         return console.error(err.toString());
     });
 });
+
+let timerInterval;
+let remainingTime = 120; // 2 minutes in seconds
+
+// Function to start the countdown timer when the game starts
+function startTimer() {
+    clearInterval(timerInterval); // Ensure no previous timer is running
+    remainingTime = 120; // Reset to 2 minutes (120 seconds)
+    updateTimerDisplay(); // Update the initial display
+
+    // Start the countdown interval (runs every second)
+    timerInterval = setInterval(function () {
+        remainingTime--;
+        updateTimerDisplay(); // Update the displayed time
+
+        if (remainingTime <= 0) {
+            clearInterval(timerInterval); // Stop the timer
+            sendRestartGameCommand(); // Send restart game command to the server
+        }
+    }, 1000); // 1000 ms = 1 second
+}
+
+// Function to update the displayed time on the webpage
+function updateTimerDisplay() {
+    const minutes = Math.floor(remainingTime / 60);
+    const seconds = remainingTime % 60;
+    const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    document.getElementById('timer').textContent = formattedTime;
+}
+
+// Function to send a restart game command to the server when the timer runs out
+function sendRestartGameCommand() {
+    connection.invoke("RestartGame").catch(function (err) {
+        return console.error(err.toString());
+    });
+}
+
+// Modify the "Start Game" button to trigger the timer
+startGameBtn.addEventListener('click', function () {
+    connection.invoke("StartGame").then(() => {
+        startTimer(); // Start the countdown timer when the game starts
+    }).catch(function (err) {
+        return console.error(err.toString());
+    });
+});
+

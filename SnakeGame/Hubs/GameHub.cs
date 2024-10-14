@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
+using SnakeGame.Factories;
 using SnakeGame.Models;
 using SnakeGame.Services;
 
@@ -31,8 +32,20 @@ namespace SnakeGame.Hubs
             await Clients.All.SendAsync("GameStarted");
         }
 
-        public async Task ResetGame()
+        public async Task ResetGame(int level)
         {
+            switch (level)
+            {
+                case 1:
+                    _gameService.LevelFactory = new Level1Factory();
+                    break;
+                case 2:
+                    _gameService.LevelFactory = new Level2Factory();
+                    break;
+                case 3:
+                    _gameService.LevelFactory = new Level3Factory();
+                    break;
+            }
             _gameService.ResetGame();
             await Clients.All.SendAsync("GameReset");
         }

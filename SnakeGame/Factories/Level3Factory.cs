@@ -42,7 +42,7 @@ namespace SnakeGame.Factories
 
         public Map generateMap()
         {
-            return new Level1Map();
+            return new Level3Map();
         }
     }
 }

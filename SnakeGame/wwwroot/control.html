@@ -38,6 +38,7 @@
 </head>
 <body>
     <h1>Control Your Snake</h1>
+    <h4>Time Left: <span id="timer">02:00</span></h4>
     <canvas id="gameCanvas" width="600" height="600"></canvas>
     <div class="leaderboard">
         <h2>Leaderboard</h2>
@@ -52,19 +53,23 @@
         <button onclick="sendDirection('Down')">Down</button>
         <button onclick="sendDirection('Right')">Right</button>
         <br />
-        <br />
         <button id="resetGameBtn">Generate Game</button>
         <button onclick="joinGame()">Join Game</button>
         <button id="startGameBtn">Start Game</button>
         <br />
+        <label>
+            <input type="checkbox" id="level1" name="level" onclick="selectLevel(1)"> Level 1
+        </label>
+        <label>
+            <input type="checkbox" id="level2" name="level" onclick="selectLevel(2)"> Level 2
+        </label>
+        <label>
+            <input type="checkbox" id="level3" name="level" onclick="selectLevel(3)"> Level 3
+        </label>
+        <br />
         <span>Enter your name: </span>
         <input type="text" id="playerName" placeholder="Your Name" />
     </div>
-
-    <div class="game-controls">
-
-    </div>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.0/signalr.min.js"></script>
     <script src="js/game.js"></script>
 </body>

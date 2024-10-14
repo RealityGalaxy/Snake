@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.Marshalling;
 using SnakeGame.Models.FactoryModels;
+using SnakeGame.Models.FactoryModels.Fruit;
 using SnakeGame.Services;
+using SnakeGame.Strategies;
 
 namespace SnakeGame.Models
 {
@@ -14,6 +17,7 @@ namespace SnakeGame.Models
         public string Name { get; set; }
         public bool IsAlive { get; set; } = true;
         public int MoveTimer { get; set; } = 6;
+        public IStrategy CurrentStrategy { get; set; } = new BasicStrategy();
         private GameService _gameService;
 
         public Snake(string connectionId, Point startPosition, GameService gameService, string color, string name)
@@ -30,6 +34,11 @@ namespace SnakeGame.Models
         public void Turn(Direction direction)
         {
             if (!IsAlive) return;
+            if(CurrentDirection == Direction.None)
+            {
+                CurrentDirection = direction;
+                return;
+            }
             if (Math.Abs((int)direction - (int)CurrentDirection) % 3 <= 1)
             {
                 CurrentDirection = direction;
@@ -37,21 +46,30 @@ namespace SnakeGame.Models
         }
 
         private int tempFood = 0;
+        private int RainbowTimer = 20;
         public void Move()
         {
             if (!IsAlive) return;
             if (MoveTimer != 0)
             {
-                MoveTimer--;
+                MoveTimer = Math.Min(MoveTimer-1, CurrentStrategy.GetMoveCounter());
                 return;
             }
-            MoveTimer = 6;
+            MoveTimer = CurrentStrategy.GetMoveCounter();
+            if (RainbowTimer == 0)
+            {
+                CurrentStrategy = new BasicStrategy();
+            }
+            else
+            {
+                RainbowTimer--;
+            }
 
             var head = Body.First.Value;
             Point newHead = GetNextHeadPosition(head);
 
             // Collision detection with walls or self
-            if (IsCollision(newHead))
+            if (CurrentStrategy.IsCollision(newHead))
             {
                 IsAlive = false;
                 return;
@@ -65,6 +83,11 @@ namespace SnakeGame.Models
                 {
                     tempFood += food.Consume();
                 }
+                if(food is RainbowFruit)
+                {
+                    CurrentStrategy = new FastStrategy();
+                    RainbowTimer = 20;
+                }
                 _gameService.Consumables.Remove(newHead);
             }
 
@@ -77,13 +100,22 @@ namespace SnakeGame.Models
             {
                 // Remove the tail (move forward)
                 var tail = Body.Last.Value;
-                GameService.Instance.Map.Grid[tail.X, tail.Y] = Map.CellType.Empty;
+                GameService.Instance.Map.Grid[tail.X, tail.Y] = GameService.Instance.Map.Grid[newHead.X, newHead.Y] == Map.CellType.Wall
+                ? Map.CellType.Wall
+                : Map.CellType.Empty;
                 Body.RemoveLast();
             }
 
             // Add new head
             Body.AddFirst(newHead);
-            GameService.Instance.Map.Grid[newHead.X, newHead.Y] = Map.CellType.Snake;
+            GameService.Instance.Map.Grid[newHead.X, newHead.Y] = GameService.Instance.Map.Grid[newHead.X, newHead.Y] == Map.CellType.Wall
+                ? Map.CellType.Wall
+                : Map.CellType.Snake;
+
+            if (CurrentStrategy.DirectionReset())
+            {
+                CurrentDirection = Direction.None;
+            }
         }
 
         private bool IsFood(Point head)
@@ -106,25 +138,13 @@ namespace SnakeGame.Models
             };
         }
 
-        private bool IsCollision(Point point)
-        {
-            // Check collision with walls
-            if (GameService.Instance.Map.Grid[point.X, point.Y] == Map.CellType.Wall)
-                return true;
-
-            // Check collision with self
-            if (GameService.Instance.Map.Grid[point.X, point.Y] == Map.CellType.Snake)
-                return true;
-
-            return false;
-        }
-
         public enum Direction
         {
             Up,
             Right,
             Down,
-            Left
+            Left,
+            None
         }
     }
 }

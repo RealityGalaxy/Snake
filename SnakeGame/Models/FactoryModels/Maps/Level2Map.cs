@@ -2,9 +2,9 @@
 
 namespace SnakeGame.Models.FactoryModels
 {
-    public class Level3Map : Map
+    public class Level2Map : Map
     {
-        public Level3Map() : base(40, 40)
+        public Level2Map() : base(40, 40)
         {
             GenerateObstacles(5);
         }

@@ -2,11 +2,48 @@
 
 namespace SnakeGame.Models.FactoryModels
 {
-    public class Level2Map : Map
+    public class Level3Map : Map
     {
-        public Level2Map() : base(30, 30)
+        public Level3Map() : base(40, 40)
         {
-            GenerateObstacles(5);
+            GenerateInnerWalls();
+            GenerateObstacles(10);
+        }
+        public void GenerateInnerWalls()
+        {
+            for (int i = 15; i < 25; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    Grid[i, j] = CellType.Wall;
+                }
+            }
+
+            for (int i = 15; i < 25; i++)
+            {
+                for (int j = 30; j < 40; j++)
+                {
+                    Grid[i, j] = CellType.Wall;
+                }
+            }
+
+            for (int j = 15; j < 25; j++)
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    Grid[i, j] = CellType.Wall;
+                }
+            }
+
+            for (int j = 15; j < 25; j++)
+            {
+                for (int i = 30; i < 40; i++)
+                {
+                    Grid[i, j] = CellType.Wall;
+                }
+            }
+
+
         }
 
         public void GenerateObstacles(int amount)
@@ -15,6 +52,10 @@ namespace SnakeGame.Models.FactoryModels
             {
                 Obstacle obstacle = GameService.Instance.LevelFactory.generateObstacle();
                 Point position = GetRandomEmptyPosition();
+                while (!obstacle.CheckPlacement(position, this))
+                {
+                    position = GetRandomEmptyPosition();
+                }
                 obstacle.Place(position, this);
             }
         }

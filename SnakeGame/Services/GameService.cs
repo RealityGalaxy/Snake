@@ -37,7 +37,7 @@ namespace SnakeGame.Services
             }
             _hubContext = hubContext;
             Consumables = new Dictionary<Point, Consumable>();
-            LevelFactory = new Level2Factory();
+            LevelFactory = new Level1Factory();
             Map = LevelFactory.generateMap();
         }
 
@@ -56,9 +56,9 @@ namespace SnakeGame.Services
             }
         }
 
-        private const int foodTimer = 20;
+        private const int foodTimer = 120;
         private int foodCounter = foodTimer;
-        private const int updateTimer = 6;
+        private const int updateTimer = 1;
         private int updateCounter = updateTimer;
         private void GameLoop(object state)
         {
