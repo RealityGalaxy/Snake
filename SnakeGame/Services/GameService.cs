@@ -8,31 +8,43 @@ using Microsoft.Extensions.Hosting;
 using SnakeGame.Factories;
 using SnakeGame.Hubs;
 using SnakeGame.Models;
-using SnakeGame.Models.Consumables;
+using SnakeGame.Models.FactoryModels;
+using SnakeGame.Models.FactoryModels.Fruit;
 
 namespace SnakeGame.Services
 {
     public class GameService : BackgroundService
     {
+        public static GameService Instance { get; private set; }
         private readonly IHubContext<GameHub> _hubContext;
         private Timer _timer;
 
         public ConcurrentDictionary<string, Snake> Snakes { get; } = new();
         public bool IsGameRunning { get; set; } = false;
-        private readonly IConsumableFactory FoodFactory;
+        public ILevelFactory LevelFactory { get; set; }
         public Dictionary<Point, Consumable> Consumables { get; private set; }
+        public Map Map { get; set; }
 
         public GameService(IHubContext<GameHub> hubContext)
         {
+            if(Instance == null)
+            {
+                Instance = this;
+            }
+            else
+            {
+                return;
+            }
             _hubContext = hubContext;
             Consumables = new Dictionary<Point, Consumable>();
-            FoodFactory = new FoodFactory();
+            LevelFactory = new Level2Factory();
+            Map = LevelFactory.generateMap();
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             // Start the game loop timer
-            _timer.Change(0, 300); // Update every 200ms
+            _timer.Change(0, 50); // Update every 200ms
             return Task.CompletedTask;
         }
 
@@ -40,42 +52,36 @@ namespace SnakeGame.Services
         {
             if (_timer != null)
             {
-                _timer.Change(0, 300);
+                _timer.Change(0, 50);
             }
         }
 
         private const int foodTimer = 20;
         private int foodCounter = foodTimer;
+        private const int updateTimer = 6;
+        private int updateCounter = updateTimer;
         private void GameLoop(object state)
         {
-            BroadcastGameState();
-            foodCounter--;
-            if (foodCounter == 0)
-            {
-                foodCounter = foodTimer;
-                Consumable food = GenerateRandomFood();
-                Consumables.Add(food.Position, food);
-            }
             if (IsGameRunning)
             {
-                Console.WriteLine("Game loop is running...");
-                UpdateGameState();
+                updateCounter--;
+                if (updateCounter == 0)
+                {
+                    updateCounter = updateTimer;
+                    UpdateGameState();
+                }
+                foodCounter--;
+                if (foodCounter == 0)
+                {
+                    foodCounter = foodTimer;
+                    Consumable food = LevelFactory.generateConsumable();
+                    if(food is not BigApple)
+                    {
+                        Consumables.Add(food.Position, food);
+                    }
+                }
             }
-        }
-
-        private Random foodRand = new Random();
-        private Consumable GenerateRandomFood()
-        {
-            int roll = foodRand.Next(0, 10);
-            if (roll >= 9)
-            {
-                return FoodFactory.generateBigConsumable();
-            }
-            if (roll >= 6)
-            {
-                return FoodFactory.generateMediumConsumable();
-            }
-            return FoodFactory.generateSmallConsumable();
+            BroadcastGameState();
         }
 
         private void UpdateGameState()
@@ -106,7 +112,7 @@ namespace SnakeGame.Services
             Snakes.TryAdd(snake.ConnectionId, snake);
             // Mark the initial position on the map
             var head = snake.Body.First.Value;
-            Map.Instance.Grid[head.X, head.Y] = Map.CellType.Snake;
+            Map.Grid[head.X, head.Y] = Map.CellType.Snake;
         }
 
         public void RemoveSnake(string connectionId)
@@ -116,7 +122,7 @@ namespace SnakeGame.Services
                 // Clear the snake's body from the map
                 foreach (var segment in snake.Body)
                 {
-                    Map.Instance.Grid[segment.X, segment.Y] = Map.CellType.Empty;
+                    Map.Grid[segment.X, segment.Y] = Map.CellType.Empty;
                 }
             }
         }
@@ -125,7 +131,7 @@ namespace SnakeGame.Services
         {
             IsGameRunning = false;
             Snakes.Clear();
-            Map.Instance.InitializeGrid();
+            Map = LevelFactory.generateMap();
             Consumables = new Dictionary<Point, Consumable>();
         }
 
@@ -136,9 +142,9 @@ namespace SnakeGame.Services
 
             do
             {
-                x = random.Next(1, Map.Instance.Width - 2);
-                y = random.Next(1, Map.Instance.Height - 2);
-            } while (Map.Instance.Grid[x, y] != Map.CellType.Empty);
+                x = random.Next(1, Map.Width - 2);
+                y = random.Next(1, Map.Height - 2);
+            } while (Map.Grid[x, y] != Map.CellType.Empty);
 
             return new Point(x, y);
         }
@@ -147,11 +153,11 @@ namespace SnakeGame.Services
         {
             // Construct the game state object to send to clients
             var walls = new List<object>();
-            for (int x = 0; x < Map.Instance.Width; x++)
+            for (int x = 0; x < Map.Width; x++)
             {
-                for (int y = 0; y < Map.Instance.Height; y++)
+                for (int y = 0; y < Map.Height; y++)
                 {
-                    if (Map.Instance.Grid[x, y] == Map.CellType.Wall)
+                    if (Map.Grid[x, y] == Map.CellType.Wall)
                     {
                         walls.Add(new { x, y });
                     }
@@ -179,6 +185,8 @@ namespace SnakeGame.Services
 
             return new
             {
+                width = Map.Width,
+                height = Map.Height,
                 walls,
                 fruits,
                 snakes = snakesList

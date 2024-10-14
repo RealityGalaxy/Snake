@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using SnakeGame.Models.Consumables;
+using SnakeGame.Models.FactoryModels;
 using SnakeGame.Services;
 
 namespace SnakeGame.Models
@@ -13,6 +13,7 @@ namespace SnakeGame.Models
         public string Color { get; set; }
         public string Name { get; set; }
         public bool IsAlive { get; set; } = true;
+        public int MoveTimer { get; set; } = 6;
         private GameService _gameService;
 
         public Snake(string connectionId, Point startPosition, GameService gameService, string color, string name)
@@ -39,6 +40,12 @@ namespace SnakeGame.Models
         public void Move()
         {
             if (!IsAlive) return;
+            if (MoveTimer != 0)
+            {
+                MoveTimer--;
+                return;
+            }
+            MoveTimer = 6;
 
             var head = Body.First.Value;
             Point newHead = GetNextHeadPosition(head);
@@ -70,18 +77,18 @@ namespace SnakeGame.Models
             {
                 // Remove the tail (move forward)
                 var tail = Body.Last.Value;
-                Map.Instance.Grid[tail.X, tail.Y] = Map.CellType.Empty;
+                GameService.Instance.Map.Grid[tail.X, tail.Y] = Map.CellType.Empty;
                 Body.RemoveLast();
             }
 
             // Add new head
             Body.AddFirst(newHead);
-            Map.Instance.Grid[newHead.X, newHead.Y] = Map.CellType.Snake;
+            GameService.Instance.Map.Grid[newHead.X, newHead.Y] = Map.CellType.Snake;
         }
 
         private bool IsFood(Point head)
         {
-            if (Map.Instance.Grid[head.X, head.Y] == Map.CellType.Consumable)
+            if (GameService.Instance.Map.Grid[head.X, head.Y] == Map.CellType.Consumable)
                 return true;
 
             return false;
@@ -102,11 +109,11 @@ namespace SnakeGame.Models
         private bool IsCollision(Point point)
         {
             // Check collision with walls
-            if (Map.Instance.Grid[point.X, point.Y] == Map.CellType.Wall)
+            if (GameService.Instance.Map.Grid[point.X, point.Y] == Map.CellType.Wall)
                 return true;
 
             // Check collision with self
-            if (Map.Instance.Grid[point.X, point.Y] == Map.CellType.Snake)
+            if (GameService.Instance.Map.Grid[point.X, point.Y] == Map.CellType.Snake)
                 return true;
 
             return false;

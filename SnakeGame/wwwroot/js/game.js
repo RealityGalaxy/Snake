@@ -1,7 +1,7 @@
 ﻿const canvas = document.getElementById('gameCanvas');
 const context = canvas.getContext('2d');
 
-const cellSize = canvas.width / 30; // Adjusted to fit the grid size
+let cellSize = canvas.width / 30; // Adjusted to fit the grid size
 
 // Initialize SignalR connection
 const connection = new signalR.HubConnectionBuilder()
@@ -40,6 +40,28 @@ function updateLeaderboard(gameState) {
         leaderboard.appendChild(listItem);
     });
 }
+
+
+document.addEventListener('keydown', function (event) {
+    switch (event.code) {
+        case 'ArrowUp':
+        case 'KeyW':
+            sendDirection('Up');
+            break;
+        case 'ArrowDown':
+        case 'KeyS':
+            sendDirection('Down');
+            break;
+        case 'ArrowLeft':
+        case 'KeyA':
+            sendDirection('Left');
+            break;
+        case 'ArrowRight':
+        case 'KeyD':
+            sendDirection('Right');
+            break;
+    }
+});
 
 connection.start().then(function () {
     console.log("Connected to GameHub");
@@ -100,6 +122,8 @@ function getVibrantRandomColor() {
 
 // Function to draw the game state
 function drawGame(gameState) {
+    cellSize = canvas.width / gameState.width;
+
     // Clear the canvas
     context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -190,10 +214,4 @@ resetGameBtn.addEventListener('click', function () {
     connection.invoke("ResetGame").catch(function (err) {
         return console.error(err.toString());
     });
-});
-
-connection.start().then(function () {
-    console.log("Connected to GameHub");
-}).catch(function (err) {
-    return console.error(err.toString());
 });

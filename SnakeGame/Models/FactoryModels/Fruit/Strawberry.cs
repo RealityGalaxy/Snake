@@ -1,14 +1,13 @@
 ﻿using System.Drawing;
 
-namespace SnakeGame.Models.Consumables.Fruit
+namespace SnakeGame.Models.FactoryModels.Fruit
 {
-    public class Strawberry : SmallConsumable
+    public class Strawberry : Consumable
     {
         public Strawberry()
         {
             Value = 1;
             Color = "#FF0000";
-            GenerateNewPosition(); 
         }
 
         public override bool CanConsume()

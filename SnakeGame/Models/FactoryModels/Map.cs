@@ -1,16 +1,15 @@
-﻿namespace SnakeGame.Models
+﻿namespace SnakeGame.Models.FactoryModels
 {
-    public class Map
+    public abstract class Map
     {
-        private static readonly Lazy<Map> _instance = new(() => new Map());
-        public static Map Instance => _instance.Value;
-
-        public int Width { get; } = 30;
-        public int Height { get; } = 30;
+        public int Width { get; set; }
+        public int Height { get; set; }
         public CellType[,] Grid { get; private set; }
 
-        private Map()
+        public Map(int height, int width)
         {
+            Height = height;
+            Width = width;
             Grid = new CellType[Width, Height];
             InitializeGrid();
         }
@@ -26,7 +25,12 @@
                 }
             }
 
-            // Add walls (for example, the borders)
+            // Add walls
+            GenerateWalls();
+        }
+
+        private void GenerateWalls()
+        {
             for (int x = 0; x < Width; x++)
             {
                 Grid[x, 0] = CellType.Wall;

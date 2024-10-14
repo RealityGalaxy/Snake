@@ -1,13 +1,13 @@
 ﻿using System.Drawing;
 
-namespace SnakeGame.Models.Consumables.Fruit
+namespace SnakeGame.Models.FactoryModels.Fruit
 {
-    public class WeakPoison : SmallConsumable
+    public class Lemon : Consumable
     {
-        public WeakPoison()
+        public Lemon()
         {
-            Value = -1;
-            Color = "#18B800";
+            Value = 2;
+            Color = "#FFFF00";
             GenerateNewPosition();
         }
 

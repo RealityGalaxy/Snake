@@ -1,8 +1,8 @@
 ﻿using System.Drawing;
 
-namespace SnakeGame.Models.Consumables.Fruit
+namespace SnakeGame.Models.FactoryModels.Fruit
 {
-    public class Watermelon : BigConsumable
+    public class Watermelon : Consumable
     {
         public Watermelon()
         {
