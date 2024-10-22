@@ -69,7 +69,7 @@ namespace SnakeGame.Models
             Point newHead = GetNextHeadPosition(head);
 
             // Collision detection with walls or self
-            if (CurrentStrategy.IsCollision(newHead))
+            if (CurrentStrategy.IsCollision(newHead, _gameService.GetInstance(ConnectionId)))
             {
                 IsAlive = false;
                 return;
@@ -78,7 +78,7 @@ namespace SnakeGame.Models
             if (IsFood(newHead))
             {
                 // Eat the fruit
-                Consumable food = _gameService.Consumables[newHead];
+                Consumable food = _gameService.GameInstances[_gameService.GetInstance(ConnectionId)].Consumables[newHead];
                 if (food != null)
                 {
                     tempFood += food.Consume();
@@ -88,7 +88,7 @@ namespace SnakeGame.Models
                     CurrentStrategy = new FastStrategy();
                     RainbowTimer = 20;
                 }
-                _gameService.Consumables.Remove(newHead);
+                _gameService.GameInstances[_gameService.GetInstance(ConnectionId)].Consumables.Remove(newHead);
             }
 
             // Grow the snake by not removing the tail
@@ -100,7 +100,7 @@ namespace SnakeGame.Models
             {
                 // Remove the tail (move forward)
                 var tail = Body.Last.Value;
-                GameService.Instance.Map.Grid[tail.X, tail.Y] = GameService.Instance.Map.Grid[newHead.X, newHead.Y] == Map.CellType.Wall
+                GameService.Instance.GameInstances[_gameService.GetInstance(ConnectionId)].Map.Grid[tail.X, tail.Y] = GameService.Instance.GameInstances[_gameService.GetInstance(ConnectionId)].Map.Grid[newHead.X, newHead.Y] == Map.CellType.Wall
                 ? Map.CellType.Wall
                 : Map.CellType.Empty;
                 Body.RemoveLast();
@@ -108,7 +108,7 @@ namespace SnakeGame.Models
 
             // Add new head
             Body.AddFirst(newHead);
-            GameService.Instance.Map.Grid[newHead.X, newHead.Y] = GameService.Instance.Map.Grid[newHead.X, newHead.Y] == Map.CellType.Wall
+            GameService.Instance.GameInstances[_gameService.GetInstance(ConnectionId)].Map.Grid[newHead.X, newHead.Y] = GameService.Instance.GameInstances[_gameService.GetInstance(ConnectionId)].Map.Grid[newHead.X, newHead.Y] == Map.CellType.Wall
                 ? Map.CellType.Wall
                 : Map.CellType.Snake;
 
@@ -120,7 +120,7 @@ namespace SnakeGame.Models
 
         private bool IsFood(Point head)
         {
-            if (GameService.Instance.Map.Grid[head.X, head.Y] == Map.CellType.Consumable)
+            if (GameService.Instance.GameInstances[_gameService.GetInstance(ConnectionId)].Map.Grid[head.X, head.Y] == Map.CellType.Consumable)
                 return true;
 
             return false;

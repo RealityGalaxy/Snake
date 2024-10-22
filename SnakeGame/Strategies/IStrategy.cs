@@ -6,7 +6,7 @@ namespace SnakeGame.Strategies
     {
         public int GetMoveCounter();
 
-        public bool IsCollision(Point point);
+        public bool IsCollision(Point point, int instance);
 
         public bool DirectionReset();
     }

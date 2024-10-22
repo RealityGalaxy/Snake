@@ -11,7 +11,7 @@ namespace SnakeGame.Strategies
             return 4;
         }
 
-        public bool IsCollision(Point point)
+        public bool IsCollision(Point point, int instance)
         {
             return false;
         }

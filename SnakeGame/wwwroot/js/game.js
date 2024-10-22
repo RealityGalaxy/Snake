@@ -2,6 +2,7 @@
 const context = canvas.getContext('2d');
 
 let cellSize = canvas.width / 30; // Adjusted to fit the grid size
+let currentInstance = 0;
 
 // Initialize SignalR connection
 const connection = new signalR.HubConnectionBuilder()
@@ -32,7 +33,7 @@ function selectLevel(level) {
 
 // Function to send the selected level to the server when generating the game
 function generateGame() {
-    connection.invoke("ResetGame", selectedLevel).catch(function (err) {
+    connection.invoke("ResetGame", selectedLevel, currentInstance).catch(function (err) {
         return console.error(err.toString());
     });
 }
@@ -96,7 +97,7 @@ connection.start().then(function () {
 
 // Function to send direction to the server
 function sendDirection(direction) {
-    connection.invoke("SendDirection", direction).catch(function (err) {
+    connection.invoke("SendDirection", direction, currentInstance).catch(function (err) {
         return console.error(err.toString());
     });
 }
@@ -108,7 +109,7 @@ function joinGame() {
         const color = getVibrantRandomColor();
 
         setButtonColors(color);
-        connection.invoke("AddSnake", color, playerName).catch(function (err) {
+        connection.invoke("AddSnake", color, playerName, currentInstance).catch(function (err) {
             return console.error(err.toString());
         });
     } else {
@@ -230,16 +231,23 @@ connection.on("GameReset", function () {
 });
 
 startGameBtn.addEventListener('click', function () {
-    connection.invoke("StartGame").catch(function (err) {
+    connection.invoke("StartGame", currentInstance).catch(function (err) {
         return console.error(err.toString());
     });
 });
 
 resetGameBtn.addEventListener('click', function () {
-    connection.invoke("ResetGame", selectedLevel).catch(function (err) {
+    connection.invoke("ResetGame", selectedLevel, currentInstance).catch(function (err) {
         return console.error(err.toString());
     });
 });
+
+function changeInstance(instance) {
+    currentInstance = instance
+    connection.invoke("ChangeInstance", currentInstance).catch(function (err) {
+        return console.error(err.toString());
+    });
+}
 
 let timerInterval;
 let remainingTime = 120; // 2 minutes in seconds
@@ -272,14 +280,14 @@ function updateTimerDisplay() {
 
 // Function to send a restart game command to the server when the timer runs out
 function sendRestartGameCommand() {
-    connection.invoke("RestartGame").catch(function (err) {
+    connection.invoke("RestartGame", currentInstance).catch(function (err) {
         return console.error(err.toString());
     });
 }
 
 // Modify the "Start Game" button to trigger the timer
 startGameBtn.addEventListener('click', function () {
-    connection.invoke("StartGame").then(() => {
+    connection.invoke("StartGame", currentInstance).then(() => {
         startTimer(); // Start the countdown timer when the game starts
     }).catch(function (err) {
         return console.error(err.toString());

@@ -4,7 +4,7 @@ namespace SnakeGame.Models.FactoryModels
 {
     public class Level3Map : Map
     {
-        public Level3Map() : base(40, 40)
+        public Level3Map(GameInstance instance) : base(40, 40, instance)
         {
             GenerateInnerWalls();
             GenerateObstacles(10);
@@ -50,7 +50,7 @@ namespace SnakeGame.Models.FactoryModels
         {
             for (int i = 0; i < amount; i++)
             {
-                Obstacle obstacle = GameService.Instance.LevelFactory.generateObstacle();
+                Obstacle obstacle = Instance.LevelFactory.generateObstacle();
                 Point position = GetRandomEmptyPosition();
                 while (!obstacle.CheckPlacement(position, this))
                 {

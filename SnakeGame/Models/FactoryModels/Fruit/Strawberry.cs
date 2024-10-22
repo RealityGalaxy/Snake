@@ -1,11 +1,13 @@
-﻿using System.Drawing;
+﻿using SnakeGame.Services;
+using System.Drawing;
 
 namespace SnakeGame.Models.FactoryModels.Fruit
 {
     public class Strawberry : Consumable
     {
-        public Strawberry()
+        public Strawberry(GameInstance instance)
         {
+            Instance = instance;
             Value = 1;
             Color = "#FF0000";
         }

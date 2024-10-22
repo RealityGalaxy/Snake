@@ -11,14 +11,14 @@ namespace SnakeGame.Strategies
             return 3;
         }
 
-        public bool IsCollision(Point point)
+        public bool IsCollision(Point point, int instance)
         {
             // Check collision with walls
-            if (GameService.Instance.Map.Grid[point.X, point.Y] == Map.CellType.Wall)
+            if (GameService.Instance.GameInstances[instance].Map.Grid[point.X, point.Y] == Map.CellType.Wall)
                 return true;
 
             // Check collision with self
-            if (GameService.Instance.Map.Grid[point.X, point.Y] == Map.CellType.Snake)
+            if (GameService.Instance.GameInstances[instance].Map.Grid[point.X, point.Y] == Map.CellType.Snake)
                 return true;
 
             return false;

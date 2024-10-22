@@ -4,16 +4,17 @@ namespace SnakeGame.Models.FactoryModels
 {
     public class Level1Map : Map
     {
-        public Level1Map() : base(20, 20)
+        public Level1Map(GameInstance instance) : base(20, 20, instance)
         {
             GenerateObstacles(3);
+            Instance = instance;
         }
 
         public void GenerateObstacles(int amount)
         {
             for (int i = 0; i < amount; i++)
             {
-                Obstacle obstacle = GameService.Instance.LevelFactory.generateObstacle();
+                Obstacle obstacle = Instance.LevelFactory.generateObstacle();
                 Point position = GetRandomEmptyPosition();
                 while (!obstacle.CheckPlacement(position, this))
                 {

@@ -1,5 +1,6 @@
 ﻿using SnakeGame.Models.FactoryModels;
 using SnakeGame.Models.FactoryModels.Fruit;
+using SnakeGame.Services;
 
 namespace SnakeGame.Factories
 {
@@ -21,30 +22,30 @@ namespace SnakeGame.Factories
             return new Rock();
         }
 
-        public Consumable generateConsumable()
+        public Consumable generateConsumable(GameInstance instance)
         {
             Random foodRand = new Random();
             int roll = foodRand.Next(0, 10);
             if (roll >= 9)
             {
-                return new BigApple();
+                return new BigApple(instance);
             }
             if (roll >= 7)
             {
-                return new Watermelon();
+                return new Watermelon(instance);
             }
             if (roll >= 4)
             {
-                return new Lemon();
+                return new Lemon(instance);
             }
-            Strawberry strawberry = new();
+            Strawberry strawberry = new(instance);
             strawberry.GenerateNewPosition();
             return strawberry;
         }
 
-        public Map generateMap()
+        public Map generateMap(GameInstance instance)
         {
-            return new Level2Map();
+            return new Level2Map(instance);
         }
     }
 }

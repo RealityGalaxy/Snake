@@ -1,13 +1,17 @@
-﻿namespace SnakeGame.Models.FactoryModels
+﻿using SnakeGame.Services;
+
+namespace SnakeGame.Models.FactoryModels
 {
     public abstract class Map
     {
+        public GameInstance Instance { get; set; }
         public int Width { get; set; }
         public int Height { get; set; }
         public CellType[,] Grid { get; private set; }
 
-        public Map(int height, int width)
+        public Map(int height, int width, GameInstance instance)
         {
+            Instance = instance;
             Height = height;
             Width = width;
             Grid = new CellType[Width, Height];

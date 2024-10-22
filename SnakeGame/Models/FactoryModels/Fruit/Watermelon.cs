@@ -1,14 +1,16 @@
-﻿using System.Drawing;
+﻿using SnakeGame.Services;
+using System.Drawing;
 
 namespace SnakeGame.Models.FactoryModels.Fruit
 {
     public class Watermelon : Consumable
     {
-        public Watermelon()
+        public Watermelon(GameInstance instance)
         {
+            Instance = instance;
+            GenerateNewPosition();
             Value = 3;
             Color = "#00FF00";
-            GenerateNewPosition();
         }
 
         public override bool CanConsume()

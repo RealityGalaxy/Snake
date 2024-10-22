@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using SnakeGame.Services;
+using System.Drawing;
 using System.Threading;
 
 namespace SnakeGame.Models.FactoryModels.Fruit
@@ -8,10 +9,11 @@ namespace SnakeGame.Models.FactoryModels.Fruit
         private bool _isAlive = true;
         private CancellationTokenSource _cancellationTokenSource;
 
-        public RainbowFruit()
+        public RainbowFruit(GameInstance instance)
         {
             Value = 3;
             Color = "#00FF00";
+            Instance = instance;
             GenerateNewPosition();
             StartRainbowing();
         }

@@ -1,13 +1,15 @@
-﻿using System.Drawing;
+﻿using SnakeGame.Services;
+using System.Drawing;
 
 namespace SnakeGame.Models.FactoryModels.Fruit
 {
     public class Lemon : Consumable
     {
-        public Lemon()
+        public Lemon(GameInstance instance)
         {
             Value = 2;
             Color = "#FFFF00";
+            Instance = instance;
             GenerateNewPosition();
         }
 

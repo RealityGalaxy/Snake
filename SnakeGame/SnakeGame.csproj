@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Services\GameInstance.cs\**" />
+    <Content Remove="Services\GameInstance.cs\**" />
+    <EmbeddedResource Remove="Services\GameInstance.cs\**" />
+    <None Remove="Services\GameInstance.cs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="8.0.8" />
   </ItemGroup>
 

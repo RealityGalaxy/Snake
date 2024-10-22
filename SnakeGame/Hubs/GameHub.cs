@@ -16,56 +16,59 @@ namespace SnakeGame.Hubs
             _gameService = gameService;
         }
 
-        public async Task SendDirection(string direction)
+        public async Task SendDirection(string direction, int instance)
         {
             // Update the snake's direction
-            if (_gameService.Snakes.TryGetValue(Context.ConnectionId, out Snake snake))
+            if (_gameService.GameInstances[instance].Snakes.TryGetValue(Context.ConnectionId, out Snake snake))
             {
                 snake.Turn(Enum.Parse<Snake.Direction>(direction, true));
             }
         }
 
-        public async Task StartGame()
+        public async Task ChangeInstance(int instance)
         {
-            _gameService.IsGameRunning = true;
-            _gameService.StartTimer();
-            await Clients.All.SendAsync("GameStarted");
+            _gameService.Subscribe(Context.ConnectionId, instance);
         }
 
-        public async Task ResetGame(int level)
+        public async Task StartGame(int instance)
+        {
+            _gameService.GameInstances[instance].IsGameRunning = true;
+            await Clients.Clients(_gameService.GetSubscribersForInstance(instance)).SendAsync("GameStarted");
+        }
+
+        public async Task ResetGame(int level, int instance)
         {
             switch (level)
             {
                 case 1:
-                    _gameService.LevelFactory = new Level1Factory();
+                    _gameService.GameInstances[instance].LevelFactory = new Level1Factory();
                     break;
                 case 2:
-                    _gameService.LevelFactory = new Level2Factory();
+                    _gameService.GameInstances[instance].LevelFactory = new Level2Factory();
                     break;
                 case 3:
-                    _gameService.LevelFactory = new Level3Factory();
+                    _gameService.GameInstances[instance].LevelFactory = new Level3Factory();
                     break;
             }
-            _gameService.ResetGame();
-            await Clients.All.SendAsync("GameReset");
+            _gameService.GameInstances[instance].ResetGame();
+            await Clients.Clients(_gameService.GetSubscribersForInstance(instance)).SendAsync("GameReset");
         }
 
-        public async Task AddSnake(string color, string name)
+        public async Task AddSnake(string color, string name, int instance)
         {
-            var path = Context.GetHttpContext().Request.Path;
+            _gameService.GameInstances[instance].AddSnake(Context.ConnectionId, color, name, instance);
+        }
 
-            if (path.Value.Contains("gamehub"))
-            {
-                // Add a new snake for the connected client
-                var startPosition = _gameService.GetRandomEmptyPosition();
-                var snake = new Snake(Context.ConnectionId, startPosition, _gameService, color, name);
-                _gameService.AddSnake(snake);
-            }
+        public override async Task OnConnectedAsync()
+        {
+            _gameService.Subscribe(Context.ConnectionId, 0);
+            await base.OnConnectedAsync();
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            _gameService.RemoveSnake(Context.ConnectionId);
+            _gameService.GameInstances[_gameService.GetInstance(Context.ConnectionId)].RemoveSnake(Context.ConnectionId);
+            _gameService.Unsubscribe(Context.ConnectionId);
             await base.OnDisconnectedAsync(exception);
         }
     }
