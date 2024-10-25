@@ -15,10 +15,10 @@ namespace SnakeGame.Services
 {
     public class GameService : BackgroundService
     {
-        public static GameService Instance { get; private set; }
+        public static GameService Instance { get; set; }
         private readonly IHubContext<GameHub> _hubContext;
-        public List<Subscriber> Subscribers { get; private set; } = new List<Subscriber>();
-        public GameInstance[] GameInstances { get; private set; } = new GameInstance[4];
+        public List<Subscriber> Subscribers { get; set; } = new List<Subscriber>();
+        public GameInstance[] GameInstances { get; set; } = new GameInstance[4];
 
         public GameService(IHubContext<GameHub> hubContext)
         {

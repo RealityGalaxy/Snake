@@ -45,17 +45,20 @@ namespace SnakeGame.Models
             }
         }
 
-        private int tempFood = 0;
-        private int RainbowTimer = 20;
+        public int tempFood = 0;
+        public int RainbowTimer = 20;
         public void Move()
         {
             if (!IsAlive) return;
+
             if (MoveTimer != 0)
             {
-                MoveTimer = Math.Min(MoveTimer-1, CurrentStrategy.GetMoveCounter());
+                MoveTimer = Math.Min(MoveTimer - 1, CurrentStrategy.GetMoveCounter());
                 return;
             }
+
             MoveTimer = CurrentStrategy.GetMoveCounter();
+
             if (RainbowTimer == 0)
             {
                 CurrentStrategy = new BasicStrategy();
@@ -74,6 +77,7 @@ namespace SnakeGame.Models
                 IsAlive = false;
                 return;
             }
+
             // Check for fruit consumption
             if (IsFood(newHead))
             {
@@ -83,7 +87,7 @@ namespace SnakeGame.Models
                 {
                     tempFood += food.Consume();
                 }
-                if(food is RainbowFruit)
+                if (food is RainbowFruit)
                 {
                     CurrentStrategy = new FastStrategy();
                     RainbowTimer = 20;
@@ -100,23 +104,20 @@ namespace SnakeGame.Models
             {
                 // Remove the tail (move forward)
                 var tail = Body.Last.Value;
-                GameService.Instance.GameInstances[_gameService.GetInstance(ConnectionId)].Map.Grid[tail.X, tail.Y] = GameService.Instance.GameInstances[_gameService.GetInstance(ConnectionId)].Map.Grid[newHead.X, newHead.Y] == Map.CellType.Wall
-                ? Map.CellType.Wall
-                : Map.CellType.Empty;
+                _gameService.GameInstances[_gameService.GetInstance(ConnectionId)].Map.Grid[tail.X, tail.Y] = Map.CellType.Empty;
                 Body.RemoveLast();
             }
 
             // Add new head
             Body.AddFirst(newHead);
-            GameService.Instance.GameInstances[_gameService.GetInstance(ConnectionId)].Map.Grid[newHead.X, newHead.Y] = GameService.Instance.GameInstances[_gameService.GetInstance(ConnectionId)].Map.Grid[newHead.X, newHead.Y] == Map.CellType.Wall
-                ? Map.CellType.Wall
-                : Map.CellType.Snake;
+            _gameService.GameInstances[_gameService.GetInstance(ConnectionId)].Map.Grid[newHead.X, newHead.Y] = Map.CellType.Snake;
 
             if (CurrentStrategy.DirectionReset())
             {
                 CurrentDirection = Direction.None;
             }
         }
+
 
         private bool IsFood(Point head)
         {
@@ -126,7 +127,7 @@ namespace SnakeGame.Models
             return false;
         }
 
-        private Point GetNextHeadPosition(Point head)
+        public Point GetNextHeadPosition(Point head)
         {
             return CurrentDirection switch
             {
