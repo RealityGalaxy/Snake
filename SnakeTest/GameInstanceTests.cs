@@ -145,15 +145,18 @@ namespace SnakeGame.Tests
             gameService.GameInstances = new GameInstance[1];
             gameService.GameInstances[_instanceId] = _gameInstance;
             var snake = new Snake("snake1", new Point(5, 5), gameService, "#FF0000", "Snake1");
+            _gameInstance.foodCounter = 1;
             _gameInstance.Snakes.TryAdd("snake1", snake);
 
             // Act
             _gameInstance.StartTimer();
-            Thread.Sleep(100); // Wait for the timer to tick
+            Thread.Sleep(50); // Wait for the timer to tick
+            snake.IsAlive = false;
+            Thread.Sleep(50); // Wait for the timer to tick
 
             // Assert
-            // Since we can't access private members, we'll assume the test passes if no exceptions occur.
-            Assert.True(true);
+            Assert.NotEmpty(_gameInstance.Consumables);
+            Assert.Empty(_gameInstance.Snakes);
         }
     }
 }

@@ -35,9 +35,9 @@ namespace SnakeGame.Services
 
 
         private const int foodTimer = 120;
-        private int foodCounter = foodTimer;
+        public int foodCounter = foodTimer;
         private const int updateTimer = 1;
-        private int updateCounter = updateTimer;
+        public int updateCounter = updateTimer;
         private void GameLoop(object state)
         {
             if (IsGameRunning)

@@ -64,6 +64,7 @@ namespace SnakeGame.Tests
         [InlineData(Snake.Direction.Down, Snake.Direction.Right, Snake.Direction.Right)]
         [InlineData(Snake.Direction.Right, Snake.Direction.Up, Snake.Direction.Up)]
         [InlineData(Snake.Direction.Right, Snake.Direction.Down, Snake.Direction.Down)]
+        [InlineData(Snake.Direction.None, Snake.Direction.Down, Snake.Direction.Down)] // When no direction present
         [InlineData(Snake.Direction.Up, Snake.Direction.Down, Snake.Direction.Up)]    // Invalid turn
         [InlineData(Snake.Direction.Left, Snake.Direction.Right, Snake.Direction.Left)] // Invalid turn
         public void Turn_ShouldChangeDirection_WhenValid(Snake.Direction current, Snake.Direction newDirection, Snake.Direction expected)
@@ -223,7 +224,26 @@ namespace SnakeGame.Tests
             Assert.Equal(20, snake.RainbowTimer);
         }
 
+        [Theory]
+        [InlineData(Snake.Direction.Up, 5, 4)]
+        [InlineData(Snake.Direction.Left, 4, 5)]
+        [InlineData(Snake.Direction.Right, 6, 5)]
+        [InlineData(Snake.Direction.Down, 5, 6)]
+        [InlineData(Snake.Direction.None, 5, 5)]
+        public void Move_ShouldMoveInDirection_WhenDirectionIsGiven(Snake.Direction direction, int nextX, int nextY)
+        {
+            // Arrange
+            var snake = new Snake(_connectionId, new Point(5, 5), _gameService, _color, _name);
+            snake.CurrentDirection = direction;
+            snake.MoveTimer = 0;
+            var nextPosition = new Point(nextX, nextY);
 
+            // Act
+            snake.Move();
+
+            // Assert
+            Assert.Equal(nextPosition, snake.Body.First.Value);
+        }
 
         [Fact]
         public void Move_ShouldNotChangeDirection_WhenStrategyDoesNotReset()
@@ -244,6 +264,7 @@ namespace SnakeGame.Tests
             // Arrange
             var snake = new Snake(_connectionId, new Point(5, 5), _gameService, _color, _name)
             {
+                MoveTimer = 0,
                 CurrentStrategy = new ManualStrategy()
             };
 
@@ -251,7 +272,7 @@ namespace SnakeGame.Tests
             snake.Move();
 
             // Assert
-            Assert.Equal(Snake.Direction.Right, snake.CurrentDirection);
+            Assert.Equal(Snake.Direction.None, snake.CurrentDirection);
         }
 
         // Helper method to access private fields
