@@ -9,6 +9,7 @@ namespace SnakeGame.Models.FactoryModels
         public Point Position { get; set; }
         public string Color { get; set; }
         public int Value { get; set; }
+        public bool IsPoisonous { get; set; } 
 
         public void Place(Point position, GameInstance instance)
         {

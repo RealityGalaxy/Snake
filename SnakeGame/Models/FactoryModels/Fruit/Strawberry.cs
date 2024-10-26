@@ -10,6 +10,7 @@ namespace SnakeGame.Models.FactoryModels.Fruit
             Instance = instance;
             Value = 1;
             Color = "#FF0000";
+            GenerateNewPosition();
         }
 
         public override bool CanConsume()
