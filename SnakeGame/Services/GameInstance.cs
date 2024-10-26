@@ -12,10 +12,10 @@ namespace SnakeGame.Services
     {
         public int InstanceId { get; set; }
         private Timer _timer;
-        public ConcurrentDictionary<string, Snake> Snakes { get; } = new();
+        public Dictionary<string, Snake> Snakes { get; set; } = new();
         public bool IsGameRunning { get; set; } = false;
         public ILevelFactory LevelFactory { get; set; }
-        public Dictionary<Point, Consumable> Consumables { get; private set; }
+        public Dictionary<Point, Consumable> Consumables { get; set; }
         public Map Map { get; set; }
         public GameInstance(int id)
         {
@@ -130,7 +130,7 @@ namespace SnakeGame.Services
 
         public void RemoveSnake(string connectionId)
         {
-            if (Snakes.TryRemove(connectionId, out Snake snake))
+            if (Snakes.Remove(connectionId, out Snake snake))
             {
                 // Clear the snake's body from the map
                 foreach (var segment in snake.Body)
