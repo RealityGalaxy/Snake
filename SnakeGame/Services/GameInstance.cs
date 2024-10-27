@@ -38,6 +38,7 @@ namespace SnakeGame.Services
         private int foodCounter = foodTimer;
         private const int updateTimer = 1;
         private int updateCounter = updateTimer;
+        private int foodUpdateCounter = foodTimer / 4;
         private void GameLoop(object state)
         {
             if (IsGameRunning)
@@ -56,6 +57,15 @@ namespace SnakeGame.Services
                     if (food is not BigApple)
                     {
                         Consumables.Add(food.Position, food);
+                    }
+                }
+                foodUpdateCounter--;
+                if (foodUpdateCounter <= 0)
+                {
+                    foodUpdateCounter = foodTimer / 4;
+                    foreach (var consumable in Consumables.Values)
+                    {
+                        consumable.Move();
                     }
                 }
             }

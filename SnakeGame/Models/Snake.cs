@@ -78,7 +78,7 @@ namespace SnakeGame.Models
             if (IsFood(newHead))
             {
                 // Eat the fruit
-                Consumable food = _gameService.GameInstances[_gameService.GetInstance(ConnectionId)].Consumables[newHead];
+                Consumable food = _gameService.GameInstances[_gameService.GetInstance(ConnectionId)].Consumables.Where(x => x.Value.Position == newHead).Select(x => x.Value).First();
                 if (food != null)
                 {
                     tempFood += food.Consume();
@@ -88,8 +88,8 @@ namespace SnakeGame.Models
                     CurrentStrategy = new FastStrategy();
                     RainbowTimer = 20;
                 }
-                _gameService.GameInstances[_gameService.GetInstance(ConnectionId)].Consumables.Remove(newHead);
-                food.Remove();
+                var consumableEntry = _gameService.GameInstances[_gameService.GetInstance(ConnectionId)].Consumables.Where(x => x.Value.Position == newHead).First();
+                _gameService.GameInstances[_gameService.GetInstance(ConnectionId)].Consumables.Remove(consumableEntry.Key);
             }
 
             // Grow the snake by not removing the tail
