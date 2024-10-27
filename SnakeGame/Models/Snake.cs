@@ -47,9 +47,15 @@ namespace SnakeGame.Models
 
         private int tempFood = 0;
         private int RainbowTimer = 20;
+        private int SpawnTimer = 24;
         public void Move()
         {
             if (!IsAlive) return;
+            if (SpawnTimer != 0)
+            {
+                SpawnTimer--;
+                return;
+            }
             if (MoveTimer != 0)
             {
                 MoveTimer = Math.Min(MoveTimer-1, CurrentStrategy.GetMoveCounter());

@@ -12,10 +12,10 @@ namespace SnakeGame.Services
     {
         public int InstanceId { get; set; }
         private Timer _timer;
-        public ConcurrentDictionary<string, Snake> Snakes { get; } = new();
+        public Dictionary<string, Snake> Snakes { get; set; } = new();
         public bool IsGameRunning { get; set; } = false;
         public ILevelFactory LevelFactory { get; set; }
-        public Dictionary<Point, Consumable> Consumables { get; private set; }
+        public Dictionary<Point, Consumable> Consumables { get; set; }
         public Map Map { get; set; }
         public GameInstance(int id)
         {
@@ -54,10 +54,6 @@ namespace SnakeGame.Services
                 {
                     foodCounter = foodTimer;
                     Consumable food = LevelFactory.generateConsumable(this);
-                    if (food is not BigApple)
-                    {
-                        Consumables.Add(food.Position, food);
-                    }
                 }
                 foodUpdateCounter--;
                 if (foodUpdateCounter <= 0)
@@ -83,9 +79,9 @@ namespace SnakeGame.Services
         {
             // Construct the game state object to send to clients
             var walls = new List<object>();
-            for (int x = 0; x < Map.Width; x++)
+            for (int x = 0; x < Map.Size.Width; x++)
             {
-                for (int y = 0; y < Map.Height; y++)
+                for (int y = 0; y < Map.Size.Height; y++)
                 {
                     if (Map.Grid[x, y] == Map.CellType.Wall)
                     {
@@ -94,7 +90,7 @@ namespace SnakeGame.Services
                 }
             }
 
-            var fruits = Consumables.Values.ToList().ConvertAll(consumable => new { x = consumable.Position.X, y = consumable.Position.Y, color = consumable.Color } as object);
+            var fruits = Consumables.Values.ToList().ConvertAll(consumable => new { x = consumable.Position.X, y = consumable.Position.Y, color = consumable.Attributes.Color } as object);
 
             var snakesList = new List<object>();
             foreach (var snake in Snakes.Values)
@@ -115,8 +111,8 @@ namespace SnakeGame.Services
 
             return new
             {
-                width = Map.Width,
-                height = Map.Height,
+                width = Map.Size.Width,
+                height = Map.Size.Height,
                 walls,
                 fruits,
                 snakes = snakesList
@@ -137,8 +133,8 @@ namespace SnakeGame.Services
 
             do
             {
-                x = random.Next(1, Map.Width - 2);
-                y = random.Next(1, Map.Height - 2);
+                x = random.Next(1, Map.Size.Width - 2);
+                y = random.Next(1, Map.Size.Height - 2);
             } while (Map.Grid[x, y] != Map.CellType.Empty);
 
             return new Point(x, y);
@@ -146,7 +142,7 @@ namespace SnakeGame.Services
 
         public void RemoveSnake(string connectionId)
         {
-            if (Snakes.TryRemove(connectionId, out Snake snake))
+            if (Snakes.Remove(connectionId, out Snake snake))
             {
                 // Clear the snake's body from the map
                 foreach (var segment in snake.Body)

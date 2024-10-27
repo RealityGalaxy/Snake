@@ -1,5 +1,6 @@
 ﻿using SnakeGame.Models;
 using SnakeGame.Models.FactoryModels;
+using SnakeGame.Models.FactoryModels.Fruit.Attributes;
 
 namespace SnakeGame.Builders
 {
@@ -12,6 +13,7 @@ namespace SnakeGame.Builders
         IConsumableBuilder SetPoison(bool isPoison);
         IConsumableBuilder SetDynamicPositioning(bool isDynamic);
         IConsumableBuilder SetBigConsumable(bool isBig);
+        IConsumableBuilder SetAttributes(FruitAttributes attributes);
         Consumable Build();
     }
 }

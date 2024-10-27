@@ -14,7 +14,7 @@
                 {
                     var pos_x = j + position.X;
                     int pos_y = i + position.Y;
-                    if (Points[i, j] == 1 && (pos_y >= map.Width || pos_x >= map.Height || map.Grid[pos_x, pos_y] != Map.CellType.Empty))
+                    if (Points[i, j] == 1 && pos_y < map.Size.Width && pos_x < map.Size.Height && map.Grid[pos_x, pos_y] != Map.CellType.Empty)
                     {
                         return false;
                     }
@@ -31,7 +31,7 @@
                 {
                     var pos_x = j + position.X;
                     int pos_y = i + position.Y;
-                    if (Points[i, j] == 1 && pos_y < map.Width && pos_x < map.Height)
+                    if (Points[i, j] == 1 && pos_y < map.Size.Width && pos_x < map.Size.Height)
                     {
                         map.Grid[pos_x, pos_y] = Map.CellType.Wall;
                     }

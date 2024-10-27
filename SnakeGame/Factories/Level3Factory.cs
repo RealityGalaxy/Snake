@@ -1,6 +1,8 @@
 ﻿using SnakeGame.Builders;
 using SnakeGame.Models.FactoryModels;
 using SnakeGame.Models.FactoryModels.Fruit;
+using SnakeGame.Models.FactoryModels.Fruit.Attributes;
+using SnakeGame.Models.FactoryModels.Maps.MapSizes;
 using SnakeGame.Services;
 
 namespace SnakeGame.Factories
@@ -40,29 +42,26 @@ namespace SnakeGame.Factories
             {
                 builder.SetPoison(true);
             }
-            if (roll >= 9)
+            switch (roll)
             {
-                builder.SetType(typeof(RainbowFruit))
-                    .SetPoison(false);
-            }
-            else if (roll >= 7)
-            {
-                builder.SetType(typeof(BigApple))
-                    .SetBigConsumable(true)
-                    .SetDynamicPositioning(false)
-                    .SetPoison(false)
-                    .SetColor("#FF0000")
-                    .SetValue(1);
-
-                return builder.Build();
-            }
-            else if (roll >= 4)
-            {
-                builder.SetType(typeof(Watermelon));
-            }
-            else
-            {
-                builder.SetType(typeof(Lemon));
+                case >= 9:
+                    builder.SetType(typeof(RainbowFruit))
+                        .SetAttributes(new StrawberryAttributes())
+                        .SetPoison(false);
+                    break;
+                case >= 7:
+                    builder.SetType(typeof(BigFruit))
+                        .SetAttributes(new StrawberryAttributes())
+                        .SetBigConsumable(true)
+                        .SetDynamicPositioning(false)
+                        .SetPoison(false);
+                    return builder.Build();
+                case >= 4:
+                    builder.SetAttributes(new WatermelonAttributes());
+                    break;
+                default:
+                    builder.SetAttributes(new LemonAttributes());
+                    break;
             }
             if (dynamicRoll >= 3)
             {
@@ -73,7 +72,7 @@ namespace SnakeGame.Factories
 
         public Map generateMap(GameInstance instance)
         {
-            return new Level3Map(instance);
+            return new Level3Map(instance, new MapSize40());
         }
     }
 }

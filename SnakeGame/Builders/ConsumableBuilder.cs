@@ -1,4 +1,5 @@
 ﻿using SnakeGame.Models.FactoryModels;
+using SnakeGame.Models.FactoryModels.Fruit.Attributes;
 using SnakeGame.Models.FactoryModels.Fruit;
 using SnakeGame.Services;
 using SnakeGame.Models;
@@ -62,17 +63,38 @@ namespace SnakeGame.Builders
             _isBig = isBig;
             return this;
         }
-
+        public IConsumableBuilder SetAttributes(FruitAttributes attributes)
+        {
+            _value = attributes.Value;
+            _color = attributes.Color;
+            return this;
+        }
         public Consumable Build()
         {
-            if (_consumableType == null) throw new InvalidOperationException("Consumable type must be set");
+            if (_consumableType == null)
+                _consumableType = typeof(Fruit);
 
-            Consumable consumable = (Consumable)Activator.CreateInstance(_consumableType, _instance);
+            Consumable consumable;
+
+            switch (_consumableType)
+            {
+                case Type bigFruitType when bigFruitType == typeof(BigFruit):
+                    consumable = new BigFruit(_instance, new FruitAttributes());
+                    break;
+
+                case Type rainbowFruitType when rainbowFruitType == typeof(RainbowFruit):
+                    consumable = new RainbowFruit(_instance, new FruitAttributes());
+                    break;
+
+                default:
+                    consumable = new Fruit(_instance, new FruitAttributes());
+                    break;
+            }
             if (_position.HasValue) consumable.Position = _position.Value;
-            consumable.Color = _isPoison ? "Purple" : consumable.Color;
-            consumable.Value = _value == 0 ? consumable.Value : _value;
+            consumable.Attributes.Color = _isPoison ? "Purple" : _color;
+            consumable.Attributes.Value = _value == 0 ? consumable.Attributes.Value : _value;
             consumable.IsPoisonous = _isPoison;
-            if (_isPoison) consumable.Value = consumable.Value * -1;
+            if (_isPoison) consumable.Attributes.Value = consumable.Attributes.Value * -1;
             consumable.IsDynamic = _isDynamic;
             consumable.IsBigConsumable = _isBig;
 
@@ -89,6 +111,10 @@ namespace SnakeGame.Builders
                         _instance.Consumables.Add(position, bigConsumable);
                     }
                 }
+            }
+            else
+            {
+                _instance.Consumables.Add(consumable.Position, consumable);
             }
 
             return consumable;

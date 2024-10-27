@@ -1,10 +1,11 @@
-﻿using SnakeGame.Services;
+﻿using SnakeGame.Models.FactoryModels.Maps.MapSizes;
+using SnakeGame.Services;
 
 namespace SnakeGame.Models.FactoryModels
 {
     public class Level2Map : Map
     {
-        public Level2Map(GameInstance instance) : base(30, 30, instance)
+        public Level2Map(GameInstance instance, MapSize size) : base(instance, size)
         {
             GenerateObstacles(5);
         }
@@ -30,8 +31,8 @@ namespace SnakeGame.Models.FactoryModels
 
             do
             {
-                x = random.Next(1, Width - 2);
-                y = random.Next(1, Height - 2);
+                x = random.Next(1, Size.Width - 2);
+                y = random.Next(1, Size.Height - 2);
             } while (Grid[x, y] != CellType.Empty);
 
             return new Point(x, y);

@@ -1,5 +1,7 @@
 ﻿using SnakeGame.Models.FactoryModels;
 using SnakeGame.Models.FactoryModels.Fruit;
+using SnakeGame.Models.FactoryModels.Fruit.Attributes;
+using SnakeGame.Models.FactoryModels.Maps.MapSizes;
 using SnakeGame.Services;
 using SnakeGame.Builders;
 
@@ -19,17 +21,17 @@ namespace SnakeGame.Factories
             int roll = foodRand.Next(0, 10);
             int poisonRoll = foodRand.Next(0, 10);
             int dynamicRoll = foodRand.Next(0, 10);
-            if (roll >= 9)
+            switch (roll)
             {
-                builder.SetType(typeof(Watermelon));
-            }
-            else if (roll >= 6)
-            {
-                builder.SetType(typeof(Lemon));
-            }
-            else
-            {
-                builder.SetType(typeof(Strawberry));
+                case >= 9:
+                    builder.SetAttributes(new WatermelonAttributes());
+                    break;
+                case >= 6:
+                    builder.SetAttributes(new LemonAttributes());
+                    break;
+                default:
+                    builder.SetAttributes(new StrawberryAttributes());
+                    break;
             }
             if (poisonRoll >= 8)
             {
@@ -44,7 +46,7 @@ namespace SnakeGame.Factories
 
         public Map generateMap(GameInstance instance)
         {
-            return new Level1Map(instance);
+            return new Level1Map(instance, new MapSize20());
         }
     }
 }
