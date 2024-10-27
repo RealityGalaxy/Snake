@@ -1,4 +1,4 @@
-﻿using SnakeGame.Models.FactoryModels.Fruit;
+﻿using SnakeGame.Models.FactoryModels.Fruit.Attributes;
 using SnakeGame.Services;
 using System;
 
@@ -27,8 +27,8 @@ namespace SnakeGame.Models.FactoryModels
 
             do
             {
-                x = random.Next(1, Instance.Map.Width - 1);
-                y = random.Next(1, Instance.Map.Height - 1);
+                x = random.Next(1, Instance.Map.Size.Width - 1);
+                y = random.Next(1, Instance.Map.Size.Height - 1);
             } while (Instance.Map.Grid[x, y] != Map.CellType.Empty);
 
             Position = new Point(x, y);

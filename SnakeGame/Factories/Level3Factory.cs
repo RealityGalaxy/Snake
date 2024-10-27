@@ -1,6 +1,7 @@
 ﻿using SnakeGame.Models.FactoryModels;
 using SnakeGame.Models.FactoryModels.Fruit;
 using SnakeGame.Models.FactoryModels.Fruit.Attributes;
+using SnakeGame.Models.FactoryModels.Maps.MapSizes;
 using SnakeGame.Services;
 
 namespace SnakeGame.Factories
@@ -52,7 +53,7 @@ namespace SnakeGame.Factories
 
         public Map generateMap(GameInstance instance)
         {
-            return new Level3Map(instance);
+            return new Level3Map(instance, new MapSize40());
         }
     }
 }

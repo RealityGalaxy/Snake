@@ -16,15 +16,15 @@ namespace SnakeGame.Models.FactoryModels.Fruit
             var random = new Random();
             int x, y;
 
-            x = random.Next(1, Instance.Map.Width - 1);
-            y = random.Next(1, Instance.Map.Height - 1);
+            x = random.Next(1, Instance.Map.Size.Width - 1);
+            y = random.Next(1, Instance.Map.Size.Height - 1);
             while (Instance.Map.Grid[x, y] != Map.CellType.Empty ||
             Instance.Map.Grid[x + 1, y + 1] != Map.CellType.Empty ||
             Instance.Map.Grid[x + 1, y] != Map.CellType.Empty ||
             Instance.Map.Grid[x, y + 1] != Map.CellType.Empty)
             {
-                x = random.Next(1, Instance.Map.Width - 1);
-                y = random.Next(1, Instance.Map.Height - 1);
+                x = random.Next(1, Instance.Map.Size.Width - 1);
+                y = random.Next(1, Instance.Map.Size.Height - 1);
             }
 
             for(int i = 0; i <= 1; i++)

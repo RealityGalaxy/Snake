@@ -67,9 +67,9 @@ namespace SnakeGame.Services
         {
             // Construct the game state object to send to clients
             var walls = new List<object>();
-            for (int x = 0; x < Map.Width; x++)
+            for (int x = 0; x < Map.Size.Width; x++)
             {
-                for (int y = 0; y < Map.Height; y++)
+                for (int y = 0; y < Map.Size.Height; y++)
                 {
                     if (Map.Grid[x, y] == Map.CellType.Wall)
                     {
@@ -99,8 +99,8 @@ namespace SnakeGame.Services
 
             return new
             {
-                width = Map.Width,
-                height = Map.Height,
+                width = Map.Size.Width,
+                height = Map.Size.Height,
                 walls,
                 fruits,
                 snakes = snakesList
@@ -121,8 +121,8 @@ namespace SnakeGame.Services
 
             do
             {
-                x = random.Next(1, Map.Width - 2);
-                y = random.Next(1, Map.Height - 2);
+                x = random.Next(1, Map.Size.Width - 2);
+                y = random.Next(1, Map.Size.Height - 2);
             } while (Map.Grid[x, y] != Map.CellType.Empty);
 
             return new Point(x, y);

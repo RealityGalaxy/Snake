@@ -1,4 +1,4 @@
-﻿namespace SnakeGame.Models.FactoryModels.Fruit
+﻿namespace SnakeGame.Models.FactoryModels.Fruit.Attributes
 {
     public class FruitAttributes
     {
