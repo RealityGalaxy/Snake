@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Drawing;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Microsoft.AspNetCore.SignalR;
+using SnakeGame.Commands;
 using SnakeGame.Factories;
 using SnakeGame.Models;
 using SnakeGame.Services;
@@ -9,11 +12,22 @@ namespace SnakeGame.Hubs
 {
     public class GameHub : Hub
     {
-        private readonly GameService _gameService;
+        private GameService _gameService;
+        private CommandManager _commandManager;
 
-        public GameHub(GameService gameService)
+        public GameHub(GameService gameService, CommandManager commandManager)
         {
             _gameService = gameService;
+            _commandManager = commandManager;
+        }
+
+        public async Task Undo(int instance)
+        {
+            _commandManager.Undo(instance);
+        }
+        public async Task Pause(int instance)
+        {
+            _commandManager.ExecuteCommand(CommandManager.Pause, instance);
         }
 
         public async Task SendDirection(string direction, int instance)
@@ -32,31 +46,19 @@ namespace SnakeGame.Hubs
 
         public async Task StartGame(int instance)
         {
-            _gameService.GameInstances[instance].IsGameRunning = true;
+            _commandManager.ExecuteCommand(CommandManager.Start, instance);
             await Clients.Clients(_gameService.GetSubscribersForInstance(instance)).SendAsync("GameStarted");
         }
 
         public async Task ResetGame(int level, int instance)
         {
-            switch (level)
-            {
-                case 1:
-                    _gameService.GameInstances[instance].LevelFactory = new Level1Factory();
-                    break;
-                case 2:
-                    _gameService.GameInstances[instance].LevelFactory = new Level2Factory();
-                    break;
-                case 3:
-                    _gameService.GameInstances[instance].LevelFactory = new Level3Factory();
-                    break;
-            }
-            _gameService.GameInstances[instance].ResetGame();
+            _commandManager.ExecuteCommand(CommandManager.Generate, instance, new Dictionary<string, string> { { "level", level.ToString() } });
             await Clients.Clients(_gameService.GetSubscribersForInstance(instance)).SendAsync("GameReset");
         }
 
         public async Task AddSnake(string color, string name, int instance)
         {
-            _gameService.GameInstances[instance].AddSnake(Context.ConnectionId, color, name, instance);
+            _commandManager.ExecuteCommand(CommandManager.Join, instance, new Dictionary<string, string> { { "connectionId", Context.ConnectionId }, { "color", color }, { "name", name } });
         }
 
         public override async Task OnConnectedAsync()

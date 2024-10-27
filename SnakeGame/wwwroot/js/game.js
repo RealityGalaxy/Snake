@@ -38,7 +38,17 @@ function generateGame() {
     });
 }
 
+function pause() {
+    connection.invoke("Pause", currentInstance).catch(function (err) {
+        return console.error(err.toString());
+    });
+}
 
+function undo() {
+    connection.invoke("Undo", currentInstance).catch(function (err) {
+        return console.error(err.toString());
+    });
+}
 
 function updateLeaderboard(gameState) {
     // Sort the snakes by body length (size), in descending order (biggest snake first)
@@ -134,14 +144,13 @@ const vibrantColors = [
     '#33A1FF', // Vibrant Blue
     '#A133FF', // Vibrant Purple
     '#FF33A1', // Vibrant Pink
-    '#FF3333', // Vibrant Red
-    '#33FFD7', // Vibrant Teal
-    '#FFC733', // Vibrant Golden Yellow
 ];
 
 // Function to return a random color from the preset list
+let counter = Math.floor(Math.random() * vibrantColors.length);
 function getVibrantRandomColor() {
-    const randomIndex = Math.floor(Math.random() * vibrantColors.length); // Random index based on the array length
+    const randomIndex = counter; // Random index based on the array length
+    counter = (counter + 1) % vibrantColors.length;
     return vibrantColors[randomIndex]; // Return a random vibrant color
 }
 
