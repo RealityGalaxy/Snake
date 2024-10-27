@@ -3,14 +3,13 @@ using System.Drawing;
 
 namespace SnakeGame.Models.FactoryModels.Fruit
 {
-    public class Lemon : Consumable
+    public class Fruit : Consumable
     {
-        public Lemon(GameInstance instance)
+
+        public Fruit(GameInstance instance, FruitAttributes attributes)
         {
-            Value = 2;
-            Color = "#FFFF00";
             Instance = instance;
-            GenerateNewPosition();
+            Attributes = attributes;
         }
 
         public override bool CanConsume()
@@ -20,7 +19,7 @@ namespace SnakeGame.Models.FactoryModels.Fruit
 
         public override int Consume()
         {
-            return Value;
+            return Attributes.Value;
         }
     }
 }

@@ -9,11 +9,10 @@ namespace SnakeGame.Models.FactoryModels.Fruit
         private bool _isAlive = true;
         private CancellationTokenSource _cancellationTokenSource;
 
-        public RainbowFruit(GameInstance instance)
+        public RainbowFruit(GameInstance instance, FruitAttributes attributes)
         {
-            Value = 3;
-            Color = "#00FF00";
             Instance = instance;
+            Attributes = attributes;
             GenerateNewPosition();
             StartRainbowing();
         }
@@ -33,7 +32,7 @@ namespace SnakeGame.Models.FactoryModels.Fruit
                 while (_isAlive)
                 {
                     // Change the fruit's color
-                    Color = rainbowColors[colorIndex];
+                    Attributes.Color = rainbowColors[colorIndex];
 
                     // Cycle through the colors
                     colorIndex = (colorIndex + 1) % rainbowColors.Length;
@@ -63,7 +62,7 @@ namespace SnakeGame.Models.FactoryModels.Fruit
         public override int Consume()
         {
             StopRainbowing ();
-            return Value;
+            return Attributes.Value;
         }
     }
 }

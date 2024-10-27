@@ -1,4 +1,5 @@
-﻿using SnakeGame.Services;
+﻿using SnakeGame.Models.FactoryModels.Fruit;
+using SnakeGame.Services;
 using System;
 
 namespace SnakeGame.Models.FactoryModels
@@ -7,8 +8,7 @@ namespace SnakeGame.Models.FactoryModels
     {
         public GameInstance Instance { get; set; }
         public Point Position { get; set; }
-        public string Color { get; set; }
-        public int Value { get; set; }
+        public FruitAttributes Attributes { get; set; }
 
         public void Place(Point position, GameInstance instance)
         {

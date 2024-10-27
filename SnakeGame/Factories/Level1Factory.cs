@@ -1,5 +1,6 @@
 ﻿using SnakeGame.Models.FactoryModels;
 using SnakeGame.Models.FactoryModels.Fruit;
+using SnakeGame.Models.FactoryModels.Fruit.Attributes;
 using SnakeGame.Services;
 
 namespace SnakeGame.Factories
@@ -14,18 +15,22 @@ namespace SnakeGame.Factories
         public Consumable generateConsumable(GameInstance instance)
         {
             Random foodRand = new Random();
-            int roll = foodRand.Next(0, 10);
-            if (roll >= 9)
+            Consumable fruit;
+
+            switch (foodRand.Next(0, 10))
             {
-                return new Watermelon(instance);
+                case >= 9:
+                    fruit = new Fruit(instance, new WatermelonAttributes());
+                    break;
+                case >= 6:
+                    fruit = new Fruit(instance, new LemonAttributes());
+                    break;
+                default:
+                    fruit = new Fruit(instance, new StrawberryAttributes());
+                    break;
             }
-            if (roll >= 6)
-            {
-                return new Lemon(instance);
-            }
-            Strawberry strawberry = new(instance);
-            strawberry.GenerateNewPosition();
-            return strawberry;
+            fruit.GenerateNewPosition();
+            return fruit;
         }
 
         public Map generateMap(GameInstance instance)

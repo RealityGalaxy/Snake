@@ -53,7 +53,7 @@ namespace SnakeGame.Services
                 {
                     foodCounter = foodTimer;
                     Consumable food = LevelFactory.generateConsumable(this);
-                    if (food is not BigApple)
+                    if (food is not BigFruit)
                     {
                         Consumables.Add(food.Position, food);
                     }
@@ -78,7 +78,7 @@ namespace SnakeGame.Services
                 }
             }
 
-            var fruits = Consumables.Values.ToList().ConvertAll(consumable => new { x = consumable.Position.X, y = consumable.Position.Y, color = consumable.Color } as object);
+            var fruits = Consumables.Values.ToList().ConvertAll(consumable => new { x = consumable.Position.X, y = consumable.Position.Y, color = consumable.Attributes.Color } as object);
 
             var snakesList = new List<object>();
             foreach (var snake in Snakes.Values)

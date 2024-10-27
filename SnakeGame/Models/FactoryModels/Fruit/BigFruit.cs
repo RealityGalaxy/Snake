@@ -1,11 +1,13 @@
 ﻿using SnakeGame.Services;
+using SnakeGame.Models.FactoryModels.Fruit.Attributes;
 
 namespace SnakeGame.Models.FactoryModels.Fruit
 {
-    public class BigApple : Consumable
+    public class BigFruit : Consumable
     {
-        public BigApple(GameInstance instance)
+        public BigFruit(GameInstance instance, FruitAttributes attributes)
         {
+            Attributes = attributes;
             Instance = instance;
             GenerateNewPosition();
         }
@@ -31,9 +33,9 @@ namespace SnakeGame.Models.FactoryModels.Fruit
                 {
                     Point one = new Point(x+i, y+j);
                     Instance.Map.Grid[x+i, y+j] = Map.CellType.Consumable;
-                    Strawberry strawberry = new Strawberry(Instance);
-                    strawberry.Position = one;
-                    Instance.Consumables.Add(one, strawberry);
+                    Fruit fruit = new Fruit(Instance, Attributes);
+                    fruit.Position = one;
+                    Instance.Consumables.Add(one, fruit);
                 }
             }
         }
