@@ -36,7 +36,7 @@ namespace SnakeGame.Factories
             int roll = foodRand.Next(0, 10);
             int poisonRoll = foodRand.Next(0, 10);
             int dynamicRoll = foodRand.Next(0, 10);
-            if (poisonRoll >= 9)
+            if (poisonRoll >= 8)
             {
                 builder.SetPoison(true);
             }
@@ -64,7 +64,7 @@ namespace SnakeGame.Factories
             {
                 builder.SetType(typeof(Lemon));
             }
-            if (dynamicRoll >= 7)
+            if (dynamicRoll >= 3)
             {
                 builder.SetDynamicPositioning(true);
             }

@@ -52,11 +52,11 @@ namespace SnakeGame.Factories
             {
                 builder.SetType(typeof(Strawberry));
             }
-            if (poisonRoll >= 9)
+            if (poisonRoll >= 8)
             {
                 builder.SetPoison(true);
             }
-            if (dynamicRoll >= 7)
+            if (dynamicRoll >= 3)
             {
                 builder.SetDynamicPositioning(true);
             }

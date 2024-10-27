@@ -63,10 +63,16 @@ namespace SnakeGame.Services
                 if (foodUpdateCounter <= 0)
                 {
                     foodUpdateCounter = foodTimer / 4;
+
+                    Dictionary<Point, Consumable> newConsumables = new();
+
                     foreach (var consumable in Consumables.Values)
                     {
                         consumable.Move();
+                        newConsumables.Add(consumable.Position, consumable);
                     }
+
+                    Consumables = newConsumables;
                 }
             }
             GameService.Instance.BroadcastGameState(GetGameState(), InstanceId);
