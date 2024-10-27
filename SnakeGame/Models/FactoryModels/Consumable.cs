@@ -1,4 +1,5 @@
-﻿using SnakeGame.Services;
+﻿using SnakeGame.Models.FactoryModels.Fruit.Attributes;
+using SnakeGame.Services;
 using System;
 
 namespace SnakeGame.Models.FactoryModels
@@ -7,8 +8,7 @@ namespace SnakeGame.Models.FactoryModels
     {
         public GameInstance Instance { get; set; }
         public Point Position { get; set; }
-        public string Color { get; set; }
-        public int Value { get; set; }
+        public FruitAttributes Attributes { get; set; }
 
         public void Place(Point position, GameInstance instance)
         {
@@ -27,8 +27,8 @@ namespace SnakeGame.Models.FactoryModels
 
             do
             {
-                x = random.Next(1, Instance.Map.Width - 1);
-                y = random.Next(1, Instance.Map.Height - 1);
+                x = random.Next(1, Instance.Map.Size.Width - 1);
+                y = random.Next(1, Instance.Map.Size.Height - 1);
             } while (Instance.Map.Grid[x, y] != Map.CellType.Empty);
 
             Position = new Point(x, y);

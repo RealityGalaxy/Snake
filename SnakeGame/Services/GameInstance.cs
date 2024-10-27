@@ -53,7 +53,7 @@ namespace SnakeGame.Services
                 {
                     foodCounter = foodTimer;
                     Consumable food = LevelFactory.generateConsumable(this);
-                    if (food is not BigApple)
+                    if (food is not BigFruit)
                     {
                         Consumables.Add(food.Position, food);
                     }
@@ -67,9 +67,9 @@ namespace SnakeGame.Services
         {
             // Construct the game state object to send to clients
             var walls = new List<object>();
-            for (int x = 0; x < Map.Width; x++)
+            for (int x = 0; x < Map.Size.Width; x++)
             {
-                for (int y = 0; y < Map.Height; y++)
+                for (int y = 0; y < Map.Size.Height; y++)
                 {
                     if (Map.Grid[x, y] == Map.CellType.Wall)
                     {
@@ -78,7 +78,7 @@ namespace SnakeGame.Services
                 }
             }
 
-            var fruits = Consumables.Values.ToList().ConvertAll(consumable => new { x = consumable.Position.X, y = consumable.Position.Y, color = consumable.Color } as object);
+            var fruits = Consumables.Values.ToList().ConvertAll(consumable => new { x = consumable.Position.X, y = consumable.Position.Y, color = consumable.Attributes.Color } as object);
 
             var snakesList = new List<object>();
             foreach (var snake in Snakes.Values)
@@ -99,8 +99,8 @@ namespace SnakeGame.Services
 
             return new
             {
-                width = Map.Width,
-                height = Map.Height,
+                width = Map.Size.Width,
+                height = Map.Size.Height,
                 walls,
                 fruits,
                 snakes = snakesList
@@ -121,8 +121,8 @@ namespace SnakeGame.Services
 
             do
             {
-                x = random.Next(1, Map.Width - 2);
-                y = random.Next(1, Map.Height - 2);
+                x = random.Next(1, Map.Size.Width - 2);
+                y = random.Next(1, Map.Size.Height - 2);
             } while (Map.Grid[x, y] != Map.CellType.Empty);
 
             return new Point(x, y);
