@@ -22,5 +22,22 @@ namespace SnakeGame.Models.FactoryModels.Fruit
         {
             return Value;
         }
+
+
+        // Implementing the Clone method
+        public override Consumable Clone()
+        {
+            // Create a new Lemon instance
+            Lemon clone = new Lemon(Instance)
+            {
+                Position = this.Position,
+                Value = this.Value,
+                Color = this.Color,
+                IsPoisonous = this.IsPoisonous,
+                IsDynamic = this.IsDynamic
+            };
+
+            return clone;
+        }
     }
 }

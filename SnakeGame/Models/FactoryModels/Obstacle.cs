@@ -1,11 +1,10 @@
-﻿
-using SnakeGame.Services;
-
-namespace SnakeGame.Models.FactoryModels
+﻿namespace SnakeGame.Models.FactoryModels
 {
-    public abstract class Obstacle
+    public abstract class Obstacle : IPrototype<Obstacle>
     {
         public int[,] Points { get; set; }
+
+        public abstract Obstacle Clone();
 
         public bool CheckPlacement(Point position, Map map)
         {
@@ -15,7 +14,7 @@ namespace SnakeGame.Models.FactoryModels
                 {
                     var pos_x = j + position.X;
                     int pos_y = i + position.Y;
-                    if (Points[i, j] == 1 && pos_y < map.Width && pos_x < map.Height && map.Grid[pos_x, pos_y] != Map.CellType.Empty)
+                    if (Points[i, j] == 1 && (pos_y >= map.Width || pos_x >= map.Height || map.Grid[pos_x, pos_y] != Map.CellType.Empty))
                     {
                         return false;
                     }

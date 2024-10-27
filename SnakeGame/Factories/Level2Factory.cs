@@ -7,20 +7,26 @@ namespace SnakeGame.Factories
 {
     public class Level2Factory : ILevelFactory
     {
+        private readonly Obstacle _tunnelPrototype = new Tunnel();
+        private readonly Obstacle _rockPrototype = new Rock();
+        private readonly Obstacle _roomPrototype = new Room();
+
         public Obstacle generateObstacle()
         {
             Random rand = new Random();
             int next = rand.Next(3);
+
             switch (next)
             {
                 case 0:
-                    return new Tunnel();
+                    return _tunnelPrototype.Clone();
                 case 1:
-                    return new Rock();
+                    return _rockPrototype.Clone();
                 case 2:
-                    return new Room();
+                    return _roomPrototype.Clone();
+                default:
+                    return _rockPrototype.Clone();
             }
-            return new Rock();
         }
 
         public Consumable generateConsumable(GameInstance instance)

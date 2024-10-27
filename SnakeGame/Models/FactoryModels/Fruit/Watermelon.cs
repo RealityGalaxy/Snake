@@ -22,5 +22,19 @@ namespace SnakeGame.Models.FactoryModels.Fruit
         {
             return Value;
         }
+
+        public override Consumable Clone()
+        {
+            Watermelon clone = new Watermelon(Instance)
+            {
+                Position = this.Position,
+                Value = this.Value,
+                Color = this.Color,
+                IsPoisonous = this.IsPoisonous,
+                IsDynamic = this.IsDynamic
+            };
+
+            return clone;
+        }
     }
 }

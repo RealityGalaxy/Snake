@@ -3,7 +3,7 @@ using System;
 
 namespace SnakeGame.Models.FactoryModels
 {
-    public abstract class Consumable
+    public abstract class Consumable : IPrototype<Consumable>
     {
         public GameInstance Instance { get; set; }
         public Point Position { get; set; }
@@ -11,6 +11,7 @@ namespace SnakeGame.Models.FactoryModels
         public int Value { get; set; }
         public bool IsPoisonous { get; set; }
         public bool IsDynamic { get; set; }
+        public bool IsBigConsumable { get; set; }
 
         public void Place(Point position, GameInstance instance)
         {
@@ -21,6 +22,7 @@ namespace SnakeGame.Models.FactoryModels
 
         public abstract bool CanConsume();
         public abstract int Consume();
+        public abstract Consumable Clone();
 
         public virtual void GenerateNewPosition()
         {

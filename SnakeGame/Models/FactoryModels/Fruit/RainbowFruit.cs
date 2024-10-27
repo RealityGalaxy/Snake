@@ -65,5 +65,19 @@ namespace SnakeGame.Models.FactoryModels.Fruit
             StopRainbowing ();
             return Value;
         }
+
+        public override Consumable Clone()
+        {
+            RainbowFruit clone = new RainbowFruit(Instance)
+            {
+                Position = this.Position,
+                Value = this.Value,
+                Color = this.Color,
+                IsPoisonous = this.IsPoisonous,
+                IsDynamic = this.IsDynamic
+            };
+
+            return clone;
+        }
     }
 }

@@ -7,20 +7,26 @@ namespace SnakeGame.Factories
 {
     public class Level3Factory : ILevelFactory
     {
+        private readonly Obstacle _tunnelPrototype = new Tunnel();
+        private readonly Obstacle _rockPrototype = new Rock();
+        private readonly Obstacle _roomPrototype = new Room();
+
         public Obstacle generateObstacle()
         {
             Random rand = new Random();
             int next = rand.Next(3);
+
             switch (next)
             {
                 case 0:
-                    return new Tunnel();
+                    return _tunnelPrototype.Clone();
                 case 1:
-                    return new Rock();
+                    return _rockPrototype.Clone();
                 case 2:
-                    return new Room();
+                    return _roomPrototype.Clone();
+                default:
+                    return _rockPrototype.Clone();
             }
-            return new Rock();
         }
 
         public Consumable generateConsumable(GameInstance instance)
@@ -30,13 +36,25 @@ namespace SnakeGame.Factories
             int roll = foodRand.Next(0, 10);
             int poisonRoll = foodRand.Next(0, 10);
             int dynamicRoll = foodRand.Next(0, 10);
+            if (poisonRoll >= 9)
+            {
+                builder.SetPoison(true);
+            }
             if (roll >= 9)
             {
-                builder.SetType(typeof(RainbowFruit));
+                builder.SetType(typeof(RainbowFruit))
+                    .SetPoison(false);
             }
             else if (roll >= 7)
             {
-                builder.SetType(typeof(BigApple));
+                builder.SetType(typeof(BigApple))
+                    .SetBigConsumable(true)
+                    .SetDynamicPositioning(false)
+                    .SetPoison(false)
+                    .SetColor("#FF0000")
+                    .SetValue(1);
+
+                return builder.Build();
             }
             else if (roll >= 4)
             {
@@ -45,10 +63,6 @@ namespace SnakeGame.Factories
             else
             {
                 builder.SetType(typeof(Lemon));
-            }
-            if (poisonRoll >= 9)
-            {
-                builder.SetPoison(true);
             }
             if (dynamicRoll >= 7)
             {

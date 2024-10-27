@@ -11,6 +11,7 @@ namespace SnakeGame.Builders
         IConsumableBuilder SetType(Type consumableType);
         IConsumableBuilder SetPoison(bool isPoison);
         IConsumableBuilder SetDynamicPositioning(bool isDynamic);
+        IConsumableBuilder SetBigConsumable(bool isBig);
         Consumable Build();
     }
 }
