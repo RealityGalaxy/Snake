@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Microsoft.AspNetCore.SignalR;
+using Moq;
 using SnakeGame.Hubs;
 using SnakeGame.Models;
 using SnakeGame.Models.FactoryModels;
@@ -13,7 +15,7 @@ namespace SnakeGame.Tests
 {
     public class SnakeTests
     {
-        private GameService _gameService;
+        private readonly Mock<GameService> _mockGameService;
         private GameInstance _gameInstance;
         private string _connectionId = "test_connection";
         private string _color = "#FF0000";
@@ -22,15 +24,13 @@ namespace SnakeGame.Tests
 
         public SnakeTests()
         {
-            // Initialize GameService and GameInstance
-            _gameService = new GameService(null);
-            GameService.Instance = _gameService;
-            _gameService.GameInstances = new GameInstance[1];
+            var hubStub = new Mock<IHubContext<GameHub>>();
+            _mockGameService = new Mock<GameService>(hubStub.Object);
+            GameService.Instance = _mockGameService.Object;
             _gameInstance = new GameInstance(_instanceId);
-            _gameService.GameInstances[_instanceId] = _gameInstance;
-
-            // Mock subscriber
-            _gameService.Subscribers = new List<Subscriber>()
+            _mockGameService.Object.GameInstances = new GameInstance[1];
+            _mockGameService.Object.GameInstances[_instanceId] = _gameInstance;
+            _mockGameService.Object.Subscribers = new List<Subscriber>()
             {
                 new Subscriber(_connectionId) { InstanceNumber = _instanceId }
             };
@@ -43,7 +43,7 @@ namespace SnakeGame.Tests
             var startPosition = new Point(5, 5);
 
             // Act
-            var snake = new Snake(_connectionId, startPosition, _gameService, _color, _name);
+            var snake = new Snake(_connectionId, startPosition, _mockGameService.Object, _color, _name);
 
             // Assert
             Assert.Equal(_connectionId, snake.ConnectionId);
@@ -70,7 +70,7 @@ namespace SnakeGame.Tests
         public void Turn_ShouldChangeDirection_WhenValid(Snake.Direction current, Snake.Direction newDirection, Snake.Direction expected)
         {
             // Arrange
-            var snake = new Snake(_connectionId, new Point(5, 5), _gameService, _color, _name)
+            var snake = new Snake(_connectionId, new Point(5, 5), _mockGameService.Object, _color, _name)
             {
                 CurrentDirection = current
             };
@@ -86,7 +86,7 @@ namespace SnakeGame.Tests
         public void Turn_ShouldNotChangeDirection_WhenSnakeIsDead()
         {
             // Arrange
-            var snake = new Snake(_connectionId, new Point(5, 5), _gameService, _color, _name)
+            var snake = new Snake(_connectionId, new Point(5, 5), _mockGameService.Object, _color, _name)
             {
                 IsAlive = false,
                 CurrentDirection = Snake.Direction.Up
@@ -103,7 +103,7 @@ namespace SnakeGame.Tests
         public void Move_ShouldNotMove_WhenSnakeIsDead()
         {
             // Arrange
-            var snake = new Snake(_connectionId, new Point(5, 5), _gameService, _color, _name)
+            var snake = new Snake(_connectionId, new Point(5, 5), _mockGameService.Object, _color, _name)
             {
                 IsAlive = false
             };
@@ -119,7 +119,7 @@ namespace SnakeGame.Tests
         public void Move_ShouldDecreaseMoveTimer_WhenTimerIsNotZero()
         {
             // Arrange
-            var snake = new Snake(_connectionId, new Point(5, 5), _gameService, _color, _name)
+            var snake = new Snake(_connectionId, new Point(5, 5), _mockGameService.Object, _color, _name)
             {
                 MoveTimer = 3
             };
@@ -134,12 +134,12 @@ namespace SnakeGame.Tests
 
 
 
-        /// čia yra bugas ;D fix this pliz dunno kodėl neveikia normaliai
+        
         [Fact]
         public void Move_ShouldChangeStrategyToBasic_WhenRainbowTimerExpires()
         {
             // Arrange
-            var snake = new Snake(_connectionId, new Point(5, 5), _gameService, _color, _name)
+            var snake = new Snake(_connectionId, new Point(5, 5), _mockGameService.Object, _color, _name)
             {
                 RainbowTimer = 0,
                 CurrentStrategy = new FastStrategy()
@@ -157,7 +157,7 @@ namespace SnakeGame.Tests
         public void Move_ShouldDie_WhenCollisionOccurs()
         {
             // Arrange
-            var snake = new Snake(_connectionId, new Point(1, 1), _gameService, _color, _name);
+            var snake = new Snake(_connectionId, new Point(1, 1), _mockGameService.Object, _color, _name);
             _gameInstance.Map.Grid[2, 1] = Map.CellType.Wall;
             snake.CurrentDirection = Snake.Direction.Right;
             snake.MoveTimer = 0; // Ensure the snake moves
@@ -173,7 +173,7 @@ namespace SnakeGame.Tests
         public void Move_ShouldEatFood_AndGrow()
         {
             // Arrange
-            var snake = new Snake(_connectionId, new Point(5, 5), _gameService, _color, _name);
+            var snake = new Snake(_connectionId, new Point(5, 5), _mockGameService.Object, _color, _name);
             _gameInstance.Snakes[_connectionId] = snake;
             var foodPosition = new Point(6, 5);
             var food = new Strawberry(_gameInstance)
@@ -204,7 +204,7 @@ namespace SnakeGame.Tests
         public void Move_ShouldChangeToFastStrategy_WhenEatingRainbowFruit()
         {
             // Arrange
-            var snake = new Snake(_connectionId, new Point(5, 5), _gameService, _color, _name);
+            var snake = new Snake(_connectionId, new Point(5, 5), _mockGameService.Object, _color, _name);
             _gameInstance.Snakes[_connectionId] = snake;
             var foodPosition = new Point(6, 5);
             var food = new RainbowFruit(_gameInstance)
@@ -233,7 +233,7 @@ namespace SnakeGame.Tests
         public void Move_ShouldMoveInDirection_WhenDirectionIsGiven(Snake.Direction direction, int nextX, int nextY)
         {
             // Arrange
-            var snake = new Snake(_connectionId, new Point(5, 5), _gameService, _color, _name);
+            var snake = new Snake(_connectionId, new Point(5, 5), _mockGameService.Object, _color, _name);
             snake.CurrentDirection = direction;
             snake.MoveTimer = 0;
             var nextPosition = new Point(nextX, nextY);
@@ -249,7 +249,7 @@ namespace SnakeGame.Tests
         public void Move_ShouldNotChangeDirection_WhenStrategyDoesNotReset()
         {
             // Arrange
-            var snake = new Snake(_connectionId, new Point(5, 5), _gameService, _color, _name);
+            var snake = new Snake(_connectionId, new Point(5, 5), _mockGameService.Object, _color, _name);
 
             // Act
             snake.Move();
@@ -262,7 +262,7 @@ namespace SnakeGame.Tests
         public void Move_ShouldChangeDirectionToNone_WhenStrategyResets()
         {
             // Arrange
-            var snake = new Snake(_connectionId, new Point(5, 5), _gameService, _color, _name)
+            var snake = new Snake(_connectionId, new Point(5, 5), _mockGameService.Object, _color, _name)
             {
                 MoveTimer = 0,
                 CurrentStrategy = new ManualStrategy()

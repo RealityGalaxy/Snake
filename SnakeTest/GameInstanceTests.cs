@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.SignalR;
+using Moq;
 using SnakeGame.Factories;
+using SnakeGame.Hubs;
 using SnakeGame.Models;
 using SnakeGame.Models.FactoryModels;
 using SnakeGame.Models.FactoryModels.Fruit;
@@ -93,10 +96,11 @@ namespace SnakeGame.Tests
         public void AddSnake_ShouldAddSnakeToGame()
         {
             // Arrange
-            var gameService = new GameService(null);
-            GameService.Instance = gameService;
-            gameService.GameInstances = new GameInstance[1];
-            gameService.GameInstances[_instanceId] = _gameInstance;
+            var hubStub = new Mock<IHubContext<GameHub>>();
+            var gameService = new Mock<GameService>(hubStub.Object);
+            GameService.Instance = gameService.Object;
+            gameService.Object.GameInstances = new GameInstance[1];
+            gameService.Object.GameInstances[_instanceId] = _gameInstance;
             var connectionId = "snake1";
             var color = "#FF0000";
             var name = "Snake1";
@@ -140,11 +144,12 @@ namespace SnakeGame.Tests
 
             // Arrange
             _gameInstance.IsGameRunning = true;
-            var gameService = new GameService(null);
-            GameService.Instance = gameService;
-            gameService.GameInstances = new GameInstance[1];
-            gameService.GameInstances[_instanceId] = _gameInstance;
-            var snake = new Snake("snake1", new Point(5, 5), gameService, "#FF0000", "Snake1");
+            var hubStub = new Mock<IHubContext<GameHub>>();
+            var gameService = new Mock<GameService>(hubStub.Object);
+            GameService.Instance = gameService.Object;
+            gameService.Object.GameInstances = new GameInstance[1];
+            gameService.Object.GameInstances[_instanceId] = _gameInstance;
+            var snake = new Snake("snake1", new Point(5, 5), gameService.Object, "#FF0000", "Snake1");
             _gameInstance.foodCounter = 1;
             _gameInstance.Snakes.TryAdd("snake1", snake);
 
