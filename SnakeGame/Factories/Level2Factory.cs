@@ -1,4 +1,5 @@
-﻿using SnakeGame.Models.FactoryModels;
+﻿using SnakeGame.Builders;
+using SnakeGame.Models.FactoryModels;
 using SnakeGame.Models.FactoryModels.Fruit;
 using SnakeGame.Models.FactoryModels.Fruit.Attributes;
 using SnakeGame.Models.FactoryModels.Maps.MapSizes;
@@ -8,47 +9,63 @@ namespace SnakeGame.Factories
 {
     public class Level2Factory : ILevelFactory
     {
+        private readonly Obstacle _tunnelPrototype = new Tunnel();
+        private readonly Obstacle _rockPrototype = new Rock();
+        private readonly Obstacle _roomPrototype = new Room();
+
         public Obstacle generateObstacle()
         {
             Random rand = new Random();
             int next = rand.Next(3);
+
             switch (next)
             {
                 case 0:
-                    return new Tunnel();
+                    return _tunnelPrototype.Clone();
                 case 1:
-                    return new Rock();
+                    return _rockPrototype.Clone();
                 case 2:
-                    return new Room();
+                    return _roomPrototype.Clone();
+                default:
+                    return _rockPrototype.Clone();
             }
-            return new Rock();
         }
 
         public Consumable generateConsumable(GameInstance instance)
         {
+            ConsumableBuilder builder = new(instance);
             Random foodRand = new Random();
-            Consumable fruit;
-
-            switch (foodRand.Next(0, 10))
+            int roll = foodRand.Next(0, 10);
+            int poisonRoll = foodRand.Next(0, 10);
+            int dynamicRoll = foodRand.Next(0, 10);
+            switch (roll)
             {
                 case >= 9:
-                    fruit = new BigFruit(instance, new StrawberryAttributes());
-                    break;
+                    builder.SetType(typeof(BigFruit))
+                        .SetAttributes(new StrawberryAttributes())
+                        .SetBigConsumable(true)
+                        .SetDynamicPositioning(false)
+                        .SetPoison(false);
+                    return builder.Build();
                 case >= 7:
-                    fruit = new Fruit(instance, new WatermelonAttributes()); 
+                    builder.SetAttributes(new WatermelonAttributes());
                     break;
                 case >= 4:
-                    fruit = new Fruit(instance, new LemonAttributes());
+                    builder.SetAttributes(new LemonAttributes());
                     break;
                 default:
-                    fruit = new Fruit(instance, new StrawberryAttributes());
+                    builder.SetAttributes(new StrawberryAttributes());
                     break;
             }
-            if (fruit is not BigFruit)
+            if (poisonRoll >= 8)
             {
-                fruit.GenerateNewPosition();
+                builder.SetPoison(true);
             }
-            return fruit;
+            if (dynamicRoll >= 3)
+            {
+                builder.SetDynamicPositioning(true);
+            }
+            return builder.Build();
         }
 
         public Map generateMap(GameInstance instance)

@@ -110,6 +110,24 @@ namespace SnakeGame.Models
                 ? Map.CellType.Wall
                 : Map.CellType.Empty;
                 Body.RemoveLast();
+                if (tempFood < 0)
+                {
+                    //remove body for each point of poison
+                    while (tempFood < 0)
+                    {
+                        if (Body.Count == 0)
+                        {
+                            IsAlive = false;
+                            return;
+                        }
+                        tail = Body.Last.Value;
+                        GameService.Instance.GameInstances[_gameService.GetInstance(ConnectionId)].Map.Grid[tail.X, tail.Y] = GameService.Instance.GameInstances[_gameService.GetInstance(ConnectionId)].Map.Grid[newHead.X, newHead.Y] == Map.CellType.Wall
+                        ? Map.CellType.Wall
+                        : Map.CellType.Empty;
+                        Body.RemoveLast();
+                        tempFood++;
+                    }
+                }
             }
 
             // Add new head

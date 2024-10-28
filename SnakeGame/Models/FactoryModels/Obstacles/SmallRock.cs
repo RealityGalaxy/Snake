@@ -13,5 +13,14 @@ namespace SnakeGame.Models.FactoryModels
                 { 1, 1},
             };
         }
+
+        public override Obstacle Clone()
+        {
+            var clonedRock = new SmallRock
+            {
+                Points = (int[,])Points.Clone() // Deep copy of the Points array
+            };
+            return clonedRock;
+        }
     }
 }

@@ -3,6 +3,7 @@ using SnakeGame.Models.FactoryModels.Fruit;
 using SnakeGame.Models.FactoryModels.Fruit.Attributes;
 using SnakeGame.Models.FactoryModels.Maps.MapSizes;
 using SnakeGame.Services;
+using SnakeGame.Builders;
 
 namespace SnakeGame.Factories
 {
@@ -15,23 +16,32 @@ namespace SnakeGame.Factories
 
         public Consumable generateConsumable(GameInstance instance)
         {
+            ConsumableBuilder builder = new(instance);
             Random foodRand = new Random();
-            Consumable fruit;
-
-            switch (foodRand.Next(0, 10))
+            int roll = foodRand.Next(0, 10);
+            int poisonRoll = foodRand.Next(0, 10);
+            int dynamicRoll = foodRand.Next(0, 10);
+            switch (roll)
             {
                 case >= 9:
-                    fruit = new Fruit(instance, new WatermelonAttributes());
+                    builder.SetAttributes(new WatermelonAttributes());
                     break;
                 case >= 6:
-                    fruit = new Fruit(instance, new LemonAttributes());
+                    builder.SetAttributes(new LemonAttributes());
                     break;
                 default:
-                    fruit = new Fruit(instance, new StrawberryAttributes());
+                    builder.SetAttributes(new StrawberryAttributes());
                     break;
             }
-            fruit.GenerateNewPosition();
-            return fruit;
+            if (poisonRoll >= 8)
+            {
+                builder.SetPoison(true);
+            }
+            if (dynamicRoll >= 3)
+            {
+                builder.SetDynamicPositioning(true);
+            }
+            return builder.Build();
         }
 
         public Map generateMap(GameInstance instance)

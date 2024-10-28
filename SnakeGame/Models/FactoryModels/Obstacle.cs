@@ -1,11 +1,10 @@
-﻿
-using SnakeGame.Services;
-
-namespace SnakeGame.Models.FactoryModels
+﻿namespace SnakeGame.Models.FactoryModels
 {
-    public abstract class Obstacle
+    public abstract class Obstacle : IPrototype<Obstacle>
     {
         public int[,] Points { get; set; }
+
+        public abstract Obstacle Clone();
 
         public bool CheckPlacement(Point position, Map map)
         {

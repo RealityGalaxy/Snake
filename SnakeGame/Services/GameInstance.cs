@@ -38,6 +38,7 @@ namespace SnakeGame.Services
         private int foodCounter = foodTimer;
         private const int updateTimer = 1;
         private int updateCounter = updateTimer;
+        private int foodUpdateCounter = foodTimer / 4;
         private void GameLoop(object state)
         {
             if (IsGameRunning)
@@ -53,10 +54,21 @@ namespace SnakeGame.Services
                 {
                     foodCounter = foodTimer;
                     Consumable food = LevelFactory.generateConsumable(this);
-                    if (food is not BigFruit)
+                }
+                foodUpdateCounter--;
+                if (foodUpdateCounter <= 0)
+                {
+                    foodUpdateCounter = foodTimer / 4;
+
+                    Dictionary<Point, Consumable> newConsumables = new();
+
+                    foreach (var consumable in Consumables.Values)
                     {
-                        Consumables.Add(food.Position, food);
+                        consumable.Move();
+                        newConsumables.Add(consumable.Position, consumable);
                     }
+
+                    Consumables = newConsumables;
                 }
             }
             GameService.Instance.BroadcastGameState(GetGameState(), InstanceId);

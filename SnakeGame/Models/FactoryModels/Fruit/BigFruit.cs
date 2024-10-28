@@ -27,17 +27,7 @@ namespace SnakeGame.Models.FactoryModels.Fruit
                 y = random.Next(1, Instance.Map.Size.Height - 1);
             }
 
-            for(int i = 0; i <= 1; i++)
-            {
-                for (int j = 0; j <= 1; j++)
-                {
-                    Point one = new Point(x+i, y+j);
-                    Instance.Map.Grid[x+i, y+j] = Map.CellType.Consumable;
-                    Fruit fruit = new Fruit(Instance, Attributes);
-                    fruit.Position = one;
-                    Instance.Consumables.Add(one, fruit);
-                }
-            }
+            this.Position = new Point(x, y);
         }
         public override bool CanConsume()
         {
@@ -47,6 +37,17 @@ namespace SnakeGame.Models.FactoryModels.Fruit
         public override int Consume()
         {
             throw new NotImplementedException();
+        }
+
+        public override Consumable Clone()
+        {
+            Consumable clone = new Fruit(Instance, Attributes, Position)
+            {
+                IsPoisonous = this.IsPoisonous,
+                IsDynamic = this.IsDynamic,
+                IsBigConsumable = false
+            };
+            return clone;
         }
     }
 }
