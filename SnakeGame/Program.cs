@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using SnakeGame.Commands;
 using SnakeGame.Hubs;
 using SnakeGame.Services;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,14 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseStaticFiles();
+
+// Serve files from the Sounds directory
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Sounds")),
+    RequestPath = "/Sounds"
+});
+
 app.UseRouting();
 app.MapFallbackToFile("control.html");
 

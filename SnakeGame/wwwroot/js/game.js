@@ -239,6 +239,11 @@ connection.on("GameReset", function () {
     console.log("Game reset");
 });
 
+connection.on("PlaySound", function (soundFile) {
+    const audio = new Audio(`/Sounds/${soundFile}`);
+    audio.play().catch(error => console.error("Error playing sound:", error, " soundFile: ", soundFile));
+});
+
 startGameBtn.addEventListener('click', function () {
     connection.invoke("StartGame", currentInstance).catch(function (err) {
         return console.error(err.toString());
@@ -302,4 +307,5 @@ startGameBtn.addEventListener('click', function () {
         return console.error(err.toString());
     });
 });
+
 
