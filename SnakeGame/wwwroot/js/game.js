@@ -9,6 +9,17 @@ const connection = new signalR.HubConnectionBuilder()
     .withUrl("/gamehub")
     .build();
 
+let manual = false;
+
+function selectManual() {
+    if (manual) {
+        manual = false;
+    }
+    else {
+        manual = true;
+    }
+}
+
 connection.on("ReceiveGameState", function (gameState) {
     // Update the canvas with the new game state
     drawGame(gameState);
@@ -119,7 +130,7 @@ function joinGame() {
         const color = getVibrantRandomColor();
 
         setButtonColors(color);
-        connection.invoke("AddSnake", color, playerName, currentInstance).catch(function (err) {
+        connection.invoke("AddSnake", color, playerName, currentInstance, manual).catch(function (err) {
             return console.error(err.toString());
         });
     } else {

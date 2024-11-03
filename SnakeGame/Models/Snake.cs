@@ -17,10 +17,11 @@ namespace SnakeGame.Models
         public string Name { get; set; }
         public bool IsAlive { get; set; } = true;
         public int MoveTimer { get; set; } = 6;
-        public IStrategy CurrentStrategy { get; set; } = new BasicStrategy();
+        private IStrategy BaseStrategy { get; set; }
+        public IStrategy CurrentStrategy { get; set; }
         private GameService _gameService;
 
-        public Snake(string connectionId, Point startPosition, GameService gameService, string color, string name)
+        public Snake(string connectionId, Point startPosition, GameService gameService, string color, string name, IStrategy strategy)
         {
             ConnectionId = connectionId;
             Body = new LinkedList<Point>();
@@ -29,6 +30,8 @@ namespace SnakeGame.Models
             _gameService = gameService;
             Color = color;
             Name = name;
+            BaseStrategy = strategy;
+            CurrentStrategy = BaseStrategy;
         }
 
         public void Turn(Direction direction)
@@ -64,7 +67,7 @@ namespace SnakeGame.Models
             MoveTimer = CurrentStrategy.GetMoveCounter();
             if (RainbowTimer == 0)
             {
-                CurrentStrategy = new BasicStrategy();
+                CurrentStrategy = BaseStrategy;
             }
             else
             {
@@ -75,7 +78,7 @@ namespace SnakeGame.Models
             Point newHead = GetNextHeadPosition(head);
 
             // Collision detection with walls or self
-            if (CurrentStrategy.IsCollision(newHead, _gameService.GetInstance(ConnectionId)))
+            if (CurrentStrategy.IsCollision(newHead, _gameService.GetInstance(ConnectionId)) && CurrentDirection != Direction.None)
             {
                 IsAlive = false;
                 return;
@@ -98,11 +101,11 @@ namespace SnakeGame.Models
             }
 
             // Grow the snake by not removing the tail
-            if (tempFood > 0)
+            if (tempFood > 0 && CurrentDirection != Direction.None)
             {
                 tempFood--;
             }
-            else
+            else if (CurrentDirection != Direction.None)
             {
                 // Remove the tail (move forward)
                 var tail = Body.Last.Value;
@@ -129,12 +132,14 @@ namespace SnakeGame.Models
                     }
                 }
             }
-
-            // Add new head
-            Body.AddFirst(newHead);
-            GameService.Instance.GameInstances[_gameService.GetInstance(ConnectionId)].Map.Grid[newHead.X, newHead.Y] = GameService.Instance.GameInstances[_gameService.GetInstance(ConnectionId)].Map.Grid[newHead.X, newHead.Y] == Map.CellType.Wall
-                ? Map.CellType.Wall
-                : Map.CellType.Snake;
+            if(CurrentDirection != Direction.None)
+            {
+                // Add new head
+                Body.AddFirst(newHead);
+                GameService.Instance.GameInstances[_gameService.GetInstance(ConnectionId)].Map.Grid[newHead.X, newHead.Y] = GameService.Instance.GameInstances[_gameService.GetInstance(ConnectionId)].Map.Grid[newHead.X, newHead.Y] == Map.CellType.Wall
+                    ? Map.CellType.Wall
+                    : Map.CellType.Snake;
+            }
 
             if (CurrentStrategy.DirectionReset())
             {

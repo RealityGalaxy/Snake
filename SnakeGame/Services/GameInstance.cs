@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 using SnakeGame.Hubs;
 using SnakeGame.Models.FactoryModels.Fruit;
 using SnakeGame.Adapters;
+using SnakeGame.Strategies;
 
 namespace SnakeGame.Services
 {
@@ -160,9 +161,10 @@ namespace SnakeGame.Services
             }
         }
 
-        public void AddSnake(string connectionId, string color, string name, int instance)
+        public void AddSnake(string connectionId, string color, string name, int instance, bool isManual)
         {
-            Snake snake = new Snake(connectionId, GetRandomEmptyPosition(), GameService.Instance, color, name);
+            IStrategy strategy = isManual ? new ManualStrategy() : new BasicStrategy();
+            Snake snake = new Snake(connectionId, GetRandomEmptyPosition(), GameService.Instance, color, name, strategy);
             if(Snakes.TryAdd(snake.ConnectionId, snake))
             {
                 // Mark the initial position on the map
