@@ -1,4 +1,6 @@
-﻿namespace SnakeGame.Models.FactoryModels
+﻿using SnakeGame.Iterators;
+
+namespace SnakeGame.Models.FactoryModels
 {
     public abstract class Obstacle : IPrototype<Obstacle>
     {
@@ -8,16 +10,18 @@
 
         public bool CheckPlacement(Point position, Map map)
         {
-            for (int i = 0; i < Points.GetLength(0); i++)
+            var iterator = GetIterator();
+
+            while (iterator.HasNext())
             {
-                for (int j = 0; j < Points.GetLength(1); j++)
+                var point = iterator.Next();
+
+                var pos_x = point.X + position.X;
+                var pos_y = point.Y + position.Y;
+
+                if (pos_x >= map.Size.Width || pos_y >= map.Size.Height || map.Grid[pos_x, pos_y] != Map.CellType.Empty)
                 {
-                    var pos_x = j + position.X;
-                    int pos_y = i + position.Y;
-                    if (Points[i, j] == 1 && pos_y < map.Size.Width && pos_x < map.Size.Height && map.Grid[pos_x, pos_y] != Map.CellType.Empty)
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
             return true;
@@ -25,18 +29,25 @@
 
         public void Place(Point position, Map map)
         {
-            for (int i = 0; i < Points.GetLength(0); i++)
+            var iterator = GetIterator();
+
+            while (iterator.HasNext())
             {
-                for (int j = 0; j < Points.GetLength(1); j++)
+                var point = iterator.Next();
+
+                var pos_x = point.X + position.X;
+                var pos_y = point.Y + position.Y;
+
+                if (pos_y < map.Size.Width && pos_x < map.Size.Height)
                 {
-                    var pos_x = j + position.X;
-                    int pos_y = i + position.Y;
-                    if (Points[i, j] == 1 && pos_y < map.Size.Width && pos_x < map.Size.Height)
-                    {
-                        map.Grid[pos_x, pos_y] = Map.CellType.Wall;
-                    }
+                    map.Grid[pos_x, pos_y] = Map.CellType.Wall;
                 }
             }
+        }
+
+        public IIterator<Point> GetIterator()
+        {
+            return new ObstaclePointIterator(Points);
         }
     }
 }
