@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using System.Threading.Tasks;
-using SnakeGame.Libraries;
-using SnakeGame.Models;
+﻿using SnakeGame.Libraries;
 
 namespace SnakeGame.Adapters
 {
