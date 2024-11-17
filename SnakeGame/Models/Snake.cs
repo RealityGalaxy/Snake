@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices.Marshalling;
 using System.Threading;
 using System.Xml.Linq;
+using SnakeGame.Iterators;
 using SnakeGame.Models.FactoryModels;
 using SnakeGame.Models.FactoryModels.Fruit;
 using SnakeGame.Services;
@@ -228,6 +229,11 @@ namespace SnakeGame.Models
         public void StopRainbowing()
         {
             _cancellationTokenSource?.Cancel(); // Stop the async loop
+        }
+
+        public IIterator<Point> GetIterator()
+        {
+            return new PointIterator(Body);
         }
 
         public enum Direction

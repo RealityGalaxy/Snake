@@ -7,6 +7,7 @@ using SnakeGame.Hubs;
 using SnakeGame.Models.FactoryModels.Fruit;
 using SnakeGame.Adapters;
 using SnakeGame.Strategies;
+using SnakeGame.Iterators;
 
 namespace SnakeGame.Services
 {
@@ -99,11 +100,22 @@ namespace SnakeGame.Services
             var fruits = Consumables.Values.ToList().ConvertAll(consumable => new { x = consumable.Position.X, y = consumable.Position.Y, color = consumable.Attributes.Color } as object);
 
             var snakesList = new List<object>();
-            foreach (var snake in Snakes.Values)
+            var snakeIterator = GetIterator();
+
+            while (snakeIterator.HasNext())
             {
-                var body = new List<object>();
-                foreach (var segment in snake.Body)
+                var snake = snakeIterator.Next();
+                if (snake == null)
                 {
+                    continue;
+                }
+                var body = new List<object>();
+
+                var snakeBody = snake.GetIterator();
+
+                while (snakeBody.HasNext())
+                {
+                    var segment = snakeBody.Next();
                     body.Add(new { x = segment.X, y = segment.Y });
                 }
                 snakesList.Add(new
@@ -150,9 +162,12 @@ namespace SnakeGame.Services
         {
             if (Snakes.Remove(connectionId, out Snake snake))
             {
+                var bodyIterator = snake.GetIterator();
+
                 // Clear the snake's body from the map
-                foreach (var segment in snake.Body)
+                while (bodyIterator.HasNext())
                 {
+                    var segment = bodyIterator.Next();
                     Map.Grid[segment.X, segment.Y] = Map.CellType.Empty;
                 }
 
@@ -176,16 +191,33 @@ namespace SnakeGame.Services
             }
         }
 
+        public IIterator<Snake> GetIterator() {
+            return new SnakeIterator(Snakes);
+        }
+
         private void UpdateGameState()
         {
-            foreach (var snake in Snakes.Values)
+            var snakeIterator = GetIterator();
+
+            while (snakeIterator.HasNext())
             {
+                var snake = snakeIterator.Next();
+                if (snake == null)
+                {
+                    continue;
+                }
                 snake.Move();
             }
 
-            // Remove snakes that are no longer alive
-            foreach (var snake in Snakes.Values)
+            snakeIterator = GetIterator();
+
+            while (snakeIterator.HasNext())
             {
+                var snake = snakeIterator.Next();
+                if (snake == null)
+                {
+                    continue;
+                }
                 if (!snake.IsAlive)
                 {
                     RemoveSnake(snake.ConnectionId);
