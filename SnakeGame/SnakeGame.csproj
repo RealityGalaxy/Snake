@@ -1,20 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
+	<TargetFramework>net8.0</TargetFramework>
+	<Nullable>enable</Nullable>
+	<ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Services\GameInstance.cs\**" />
-    <Content Remove="Services\GameInstance.cs\**" />
-    <EmbeddedResource Remove="Services\GameInstance.cs\**" />
-    <None Remove="Services\GameInstance.cs\**" />
+	<Compile Remove="Services\GameInstance.cs\**" />
+	<Content Remove="Services\GameInstance.cs\**" />
+	<EmbeddedResource Remove="Services\GameInstance.cs\**" />
+	<None Remove="Services\GameInstance.cs\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="8.0.8" />
+	<PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="8.0.8" />
+	<PackageReference Include="NAudio" Version="2.2.1" />
   </ItemGroup>
+
+	<ItemGroup>
+		<Content Include="Sounds\**\*.mp3" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+
 
 </Project>

@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.Marshalling;
+using System.Threading;
+using System.Xml.Linq;
 using SnakeGame.Models.FactoryModels;
 using SnakeGame.Models.FactoryModels.Fruit;
 using SnakeGame.Services;
 using SnakeGame.Strategies;
+using SnakeGame.Strategies.Decorators;
 
 namespace SnakeGame.Models
 {
@@ -13,22 +16,27 @@ namespace SnakeGame.Models
         public string ConnectionId { get; }
         public LinkedList<Point> Body { get; }
         public Direction CurrentDirection { get; set; }
+        private string BaseColor { get; set; }
         public string Color { get; set; }
         public string Name { get; set; }
         public bool IsAlive { get; set; } = true;
         public int MoveTimer { get; set; } = 6;
-        public IStrategy CurrentStrategy { get; set; } = new BasicStrategy();
+        private IStrategy BaseStrategy { get; set; }
+        public IStrategy CurrentStrategy { get; set; }
         private GameService _gameService;
 
-        public Snake(string connectionId, Point startPosition, GameService gameService, string color, string name)
+        public Snake(string connectionId, Point startPosition, GameService gameService, string color, string name, IStrategy strategy)
         {
             ConnectionId = connectionId;
             Body = new LinkedList<Point>();
             Body.AddFirst(startPosition);
             CurrentDirection = Direction.Right;
             _gameService = gameService;
-            Color = color;
+            BaseColor = color;
+            Color = BaseColor;
             Name = name;
+            BaseStrategy = strategy;
+            CurrentStrategy = BaseStrategy;
         }
 
         public void Turn(Direction direction)
@@ -50,6 +58,25 @@ namespace SnakeGame.Models
         private int SpawnTimer = 24;
         public void Move()
         {
+            if(Body.Count < 5 && CurrentStrategy is not SmallDecorator)
+            {
+                CurrentStrategy = new SmallDecorator(CurrentStrategy);
+            }
+            else if (Body.Count >= 5 && CurrentStrategy is SmallDecorator)
+            {
+                CurrentStrategy = CurrentStrategy.BaseStrategy();
+            }
+
+
+            if (Body.Count >= 15 && CurrentStrategy is not SlowDecorator)
+            {
+                CurrentStrategy = new SlowDecorator(CurrentStrategy);
+            }
+            else if (Body.Count < 15 && CurrentStrategy is SlowDecorator)
+            {
+                CurrentStrategy = CurrentStrategy.BaseStrategy();
+            }
+
             if (!IsAlive) return;
             if (SpawnTimer != 0)
             {
@@ -62,9 +89,10 @@ namespace SnakeGame.Models
                 return;
             }
             MoveTimer = CurrentStrategy.GetMoveCounter();
-            if (RainbowTimer == 0)
+            if (RainbowTimer <= 0 && (CurrentStrategy is FastStrategy || CurrentStrategy.BaseStrategy() is FastStrategy))
             {
-                CurrentStrategy = new BasicStrategy();
+                CurrentStrategy = BaseStrategy;
+                StopRainbowing();
             }
             else
             {
@@ -75,7 +103,7 @@ namespace SnakeGame.Models
             Point newHead = GetNextHeadPosition(head);
 
             // Collision detection with walls or self
-            if (CurrentStrategy.IsCollision(newHead, _gameService.GetInstance(ConnectionId)))
+            if (CurrentStrategy.IsCollision(newHead, _gameService.GetInstance(ConnectionId)) && CurrentDirection != Direction.None)
             {
                 IsAlive = false;
                 return;
@@ -92,17 +120,18 @@ namespace SnakeGame.Models
                 if(food is RainbowFruit)
                 {
                     CurrentStrategy = new FastStrategy();
+                    StartRainbowing();
                     RainbowTimer = 20;
                 }
                 _gameService.GameInstances[_gameService.GetInstance(ConnectionId)].Consumables.Remove(newHead);
             }
 
             // Grow the snake by not removing the tail
-            if (tempFood > 0)
+            if (tempFood > 0 && CurrentDirection != Direction.None)
             {
                 tempFood--;
             }
-            else
+            else if (CurrentDirection != Direction.None)
             {
                 // Remove the tail (move forward)
                 var tail = Body.Last.Value;
@@ -129,12 +158,14 @@ namespace SnakeGame.Models
                     }
                 }
             }
-
-            // Add new head
-            Body.AddFirst(newHead);
-            GameService.Instance.GameInstances[_gameService.GetInstance(ConnectionId)].Map.Grid[newHead.X, newHead.Y] = GameService.Instance.GameInstances[_gameService.GetInstance(ConnectionId)].Map.Grid[newHead.X, newHead.Y] == Map.CellType.Wall
-                ? Map.CellType.Wall
-                : Map.CellType.Snake;
+            if(CurrentDirection != Direction.None)
+            {
+                // Add new head
+                Body.AddFirst(newHead);
+                GameService.Instance.GameInstances[_gameService.GetInstance(ConnectionId)].Map.Grid[newHead.X, newHead.Y] = GameService.Instance.GameInstances[_gameService.GetInstance(ConnectionId)].Map.Grid[newHead.X, newHead.Y] == Map.CellType.Wall
+                    ? Map.CellType.Wall
+                    : Map.CellType.Snake;
+            }
 
             if (CurrentStrategy.DirectionReset())
             {
@@ -160,6 +191,43 @@ namespace SnakeGame.Models
                 Direction.Right => new Point(head.X + 1, head.Y),
                 _ => head,
             };
+        }
+
+        private CancellationTokenSource _cancellationTokenSource;
+        public async void StartRainbowing()
+        {
+            _cancellationTokenSource = new CancellationTokenSource();
+            CancellationToken token = _cancellationTokenSource.Token;
+
+            // Define a list of colors for the rainbow effect
+            string[] rainbowColors = new[] { "#FF0000", "#FF7F00", "#FFFF00", "#00FF00", "#0000FF", "#4B0082", "#9400D3" };
+            int colorIndex = 0;
+
+            try
+            {
+                // Run the color-changing loop while the fruit is alive
+                while (true)
+                {
+                    // Change the fruit's color
+                    Color = rainbowColors[colorIndex];
+
+                    // Cycle through the colors
+                    colorIndex = (colorIndex + 1) % rainbowColors.Length;
+
+                    // Wait for a short delay before changing the color again (e.g., 300 ms)
+                    await Task.Delay(50, token);
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                Color = BaseColor;
+            }
+        }
+
+        // Method to stop the rainbow process (when the fruit is consumed or removed)
+        public void StopRainbowing()
+        {
+            _cancellationTokenSource?.Cancel(); // Stop the async loop
         }
 
         public enum Direction

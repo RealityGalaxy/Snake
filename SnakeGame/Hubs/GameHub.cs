@@ -56,9 +56,9 @@ namespace SnakeGame.Hubs
             await Clients.Clients(_gameService.GetSubscribersForInstance(instance)).SendAsync("GameReset");
         }
 
-        public async Task AddSnake(string color, string name, int instance)
+        public async Task AddSnake(string color, string name, int instance, bool manual)
         {
-            _commandManager.ExecuteCommand(CommandManager.Join, instance, new Dictionary<string, string> { { "connectionId", Context.ConnectionId }, { "color", color }, { "name", name } });
+            _commandManager.ExecuteCommand(CommandManager.Join, instance, new Dictionary<string, string> { { "connectionId", Context.ConnectionId }, { "color", color }, { "name", name }, { "manual", manual.ToString() } });
         }
 
         public override async Task OnConnectedAsync()

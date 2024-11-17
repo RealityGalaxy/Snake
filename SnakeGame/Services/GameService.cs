@@ -88,5 +88,11 @@ namespace SnakeGame.Services
         {
             return Task.CompletedTask;
         }
+
+        public async Task PlaySound(string sound, int instance)
+        {
+            var SubscribersList = GetSubscribersForInstance(instance);
+            await _hubContext.Clients.Clients(SubscribersList).SendAsync("PlaySound", sound);
+        }
     }
 }

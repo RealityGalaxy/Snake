@@ -5,6 +5,8 @@ using System.Collections.Concurrent;
 using Microsoft.AspNetCore.SignalR;
 using SnakeGame.Hubs;
 using SnakeGame.Models.FactoryModels.Fruit;
+using SnakeGame.Adapters;
+using SnakeGame.Strategies;
 
 namespace SnakeGame.Services
 {
@@ -17,6 +19,7 @@ namespace SnakeGame.Services
         public ILevelFactory LevelFactory { get; set; }
         public Dictionary<Point, Consumable> Consumables { get; set; }
         public Map Map { get; set; }
+        public SoundPlayer SoundPlayer { get; set; } = new SoundPlayer();
         public GameInstance(int id)
         {
             InstanceId = id;
@@ -54,6 +57,9 @@ namespace SnakeGame.Services
                 {
                     foodCounter = foodTimer;
                     Consumable food = LevelFactory.generateConsumable(this);
+
+                    var sound = SoundPlayer.PlaySound("fruit_spawn");
+                    GameService.Instance.PlaySound(sound, InstanceId);
                 }
                 foodUpdateCounter--;
                 if (foodUpdateCounter <= 0)
@@ -149,17 +155,24 @@ namespace SnakeGame.Services
                 {
                     Map.Grid[segment.X, segment.Y] = Map.CellType.Empty;
                 }
+
+                var sound = SoundPlayer.PlaySound("death");
+                GameService.Instance.PlaySound(sound, InstanceId);
             }
         }
 
-        public void AddSnake(string connectionId, string color, string name, int instance)
+        public void AddSnake(string connectionId, string color, string name, int instance, bool isManual)
         {
-            Snake snake = new Snake(connectionId, GetRandomEmptyPosition(), GameService.Instance, color, name);
+            IStrategy strategy = isManual ? new ManualStrategy() : new BasicStrategy();
+            Snake snake = new Snake(connectionId, GetRandomEmptyPosition(), GameService.Instance, color, name, strategy);
             if(Snakes.TryAdd(snake.ConnectionId, snake))
             {
                 // Mark the initial position on the map
                 var head = snake.Body.First.Value;
                 Map.Grid[head.X, head.Y] = Map.CellType.Snake;
+
+                var sound = SoundPlayer.PlaySound("snake_spawn");
+                GameService.Instance.PlaySound(sound, InstanceId);
             }
         }
 

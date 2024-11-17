@@ -11,7 +11,7 @@ namespace SnakeGame.Commands
         public bool Execute(int instance, Dictionary<string, string> args)
         {
             ConnectionId = args["connectionId"];
-            GameService.Instance.GameInstances[instance].AddSnake(args["connectionId"], args["color"], args["name"], instance);
+            GameService.Instance.GameInstances[instance].AddSnake(args["connectionId"], args["color"], args["name"], instance, bool.Parse(args["manual"]));
             return true;
         }
 
