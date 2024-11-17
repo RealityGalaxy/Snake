@@ -1,7 +1,5 @@
 ﻿using SnakeGame.Models.FactoryModels.Fruit.Attributes;
 using SnakeGame.Services;
-using System.Drawing;
-using System.Threading;
 
 namespace SnakeGame.Models.FactoryModels.Fruit
 {

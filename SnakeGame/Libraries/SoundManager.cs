@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Collections.Generic;
-using NAudio.Wave;
+﻿using NAudio.Wave;
 
 namespace SnakeGame.Libraries
 {

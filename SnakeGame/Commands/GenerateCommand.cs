@@ -2,7 +2,6 @@
 using SnakeGame.Models;
 using SnakeGame.Models.FactoryModels;
 using SnakeGame.Services;
-using System.Collections.Concurrent;
 
 namespace SnakeGame.Commands
 {

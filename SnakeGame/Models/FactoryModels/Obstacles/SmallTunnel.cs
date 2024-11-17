@@ -1,7 +1,4 @@
-﻿
-using SnakeGame.Services;
-
-namespace SnakeGame.Models.FactoryModels
+﻿namespace SnakeGame.Models.FactoryModels
 {
     public class SmallTunnel : Obstacle
     {
