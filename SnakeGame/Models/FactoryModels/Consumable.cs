@@ -1,9 +1,10 @@
 ﻿using SnakeGame.Models.FactoryModels.Fruit.Attributes;
 using SnakeGame.Services;
+using SnakeGame.Composites;
 
 namespace SnakeGame.Models.FactoryModels
 {
-    public abstract class Consumable : IPrototype<Consumable>
+    public abstract class Consumable : IPrototype<Consumable>, IMovable
     {
         public GameInstance Instance { get; set; }
         public Point Position { get; set; }

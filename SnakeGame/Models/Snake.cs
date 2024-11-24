@@ -1,10 +1,11 @@
 ﻿using SnakeGame.Iterators;
 using SnakeGame.Services;
 using SnakeGame.Template;
+using SnakeGame.Composites;
 
 namespace SnakeGame.Models
 {
-    public class Snake
+    public class Snake : IMovable
     {
         public string ConnectionId { get; }
         public LinkedList<Point> Body { get; }
@@ -104,6 +105,11 @@ namespace SnakeGame.Models
             Down,
             Left,
             None
+        }
+
+        public void GenerateNewPosition()
+        {
+            // yeah no, this does nothing. The only reason this exists is to make the Composite unsafe
         }
     }
 }

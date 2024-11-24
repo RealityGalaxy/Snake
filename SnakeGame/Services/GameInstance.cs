@@ -4,6 +4,7 @@ using SnakeGame.Models;
 using SnakeGame.Adapters;
 using SnakeGame.Iterators;
 using SnakeGame.Template;
+using SnakeGame.Composites;
 
 namespace SnakeGame.Services
 {
@@ -17,6 +18,9 @@ namespace SnakeGame.Services
         public Dictionary<Point, Consumable> Consumables { get; set; }
         public Map Map { get; set; }
         public SoundPlayer SoundPlayer { get; set; } = new SoundPlayer();
+        public MovableComposite SnakeComposite { get; set; } = new MovableComposite();
+        public MovableComposite ConsumableComposite { get; set; } = new MovableComposite();
+
         public GameInstance(int id)
         {
             InstanceId = id;
@@ -54,6 +58,7 @@ namespace SnakeGame.Services
                 {
                     foodCounter = foodTimer;
                     Consumable food = LevelFactory.generateConsumable(this);
+                    ConsumableComposite.Add(food);
 
                     var sound = SoundPlayer.PlaySound("fruit_spawn");
                     GameService.Instance.PlaySound(sound, InstanceId);
@@ -64,10 +69,17 @@ namespace SnakeGame.Services
                     foodUpdateCounter = foodTimer / 4;
 
                     Dictionary<Point, Consumable> newConsumables = new();
+                    ConsumableComposite = new MovableComposite();
 
                     foreach (var consumable in Consumables.Values)
                     {
-                        consumable.Move();
+                        ConsumableComposite.Add(consumable);
+                    }
+
+                    ConsumableComposite.Move();
+
+                    foreach (var consumable in Consumables.Values)
+                    {
                         newConsumables.Add(consumable.Position, consumable);
                     }
 
@@ -178,6 +190,8 @@ namespace SnakeGame.Services
             Snake snake = new Snake(connectionId, GetRandomEmptyPosition(), GameService.Instance, color, name, template);
             if(Snakes.TryAdd(snake.ConnectionId, snake))
             {
+                SnakeComposite.Add(snake);
+
                 // Mark the initial position on the map
                 var head = snake.Body.First.Value;
                 Map.Grid[head.X, head.Y] = Map.CellType.Snake;
@@ -195,15 +209,19 @@ namespace SnakeGame.Services
         {
             var snakeIterator = GetIterator();
 
-            while (snakeIterator.HasNext())
-            {
-                var snake = snakeIterator.Next();
-                if (snake == null)
-                {
-                    continue;
-                }
-                snake.Move();
-            }
+            // Temporarily disable iterator here
+            // Changed it to composite pattern
+            //while (snakeIterator.HasNext())
+            //{
+            //    var snake = snakeIterator.Next();
+            //    if (snake == null)
+            //    {
+            //        continue;
+            //    }
+            //    snake.Move();
+            //}
+
+            SnakeComposite.Move();
 
             snakeIterator = GetIterator();
 
