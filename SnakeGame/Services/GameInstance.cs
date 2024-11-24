@@ -2,13 +2,8 @@
 using SnakeGame.Models.FactoryModels;
 using SnakeGame.Models;
 using SnakeGame.Adapters;
-<<<<<<< HEAD
-using SnakeGame.Strategies;
-using SnakeGame.Iterators;
-=======
 using SnakeGame.Iterators;
 using SnakeGame.Template;
->>>>>>> 1aeaeec3317fe36653ec1df8dee05294d4c5015e
 
 namespace SnakeGame.Services
 {

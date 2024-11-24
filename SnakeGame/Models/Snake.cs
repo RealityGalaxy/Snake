@@ -1,15 +1,4 @@
-<<<<<<< HEAD
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices.Marshalling;
-using System.Threading;
-using System.Xml.Linq;
-using SnakeGame.Iterators;
-using SnakeGame.Models.FactoryModels;
-using SnakeGame.Models.FactoryModels.Fruit;
-=======
 ﻿using SnakeGame.Iterators;
->>>>>>> 1aeaeec3317fe36653ec1df8dee05294d4c5015e
 using SnakeGame.Services;
 using SnakeGame.Template;
 
