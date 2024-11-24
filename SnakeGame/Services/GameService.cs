@@ -1,15 +1,5 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Hosting;
-using SnakeGame.Factories;
+﻿using Microsoft.AspNetCore.SignalR;
 using SnakeGame.Hubs;
-using SnakeGame.Models;
-using SnakeGame.Models.FactoryModels;
-using SnakeGame.Models.FactoryModels.Fruit;
 
 namespace SnakeGame.Services
 {

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Drawing;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using SnakeGame.Commands;
-using SnakeGame.Factories;
 using SnakeGame.Models;
 using SnakeGame.Services;
 

@@ -1,13 +1,14 @@
 ﻿using SnakeGame.Factories;
 using SnakeGame.Models.FactoryModels;
 using SnakeGame.Models;
-using System.Collections.Concurrent;
-using Microsoft.AspNetCore.SignalR;
-using SnakeGame.Hubs;
-using SnakeGame.Models.FactoryModels.Fruit;
 using SnakeGame.Adapters;
+<<<<<<< HEAD
 using SnakeGame.Strategies;
 using SnakeGame.Iterators;
+=======
+using SnakeGame.Iterators;
+using SnakeGame.Template;
+>>>>>>> 1aeaeec3317fe36653ec1df8dee05294d4c5015e
 
 namespace SnakeGame.Services
 {
@@ -178,8 +179,8 @@ namespace SnakeGame.Services
 
         public void AddSnake(string connectionId, string color, string name, int instance, bool isManual)
         {
-            IStrategy strategy = isManual ? new ManualStrategy() : new BasicStrategy();
-            Snake snake = new Snake(connectionId, GetRandomEmptyPosition(), GameService.Instance, color, name, strategy);
+            MovementTemplate template = isManual ? new ManualMovementTemplate() : new BasicMovementTemplate();
+            Snake snake = new Snake(connectionId, GetRandomEmptyPosition(), GameService.Instance, color, name, template);
             if(Snakes.TryAdd(snake.ConnectionId, snake))
             {
                 // Mark the initial position on the map

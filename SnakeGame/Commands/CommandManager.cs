@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices.ObjectiveC;
-
-namespace SnakeGame.Commands
+﻿namespace SnakeGame.Commands
 {
     public class CommandManager
     {
