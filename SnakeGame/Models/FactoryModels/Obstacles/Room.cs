@@ -1,6 +1,8 @@
-﻿namespace SnakeGame.Models.FactoryModels
+﻿using SnakeGame.Models.FactoryModels.Obstacles;
+
+namespace SnakeGame.Models.FactoryModels
 {
-    public class Room : Obstacle
+    public class Room : ObstacleFlyweight
     {
         public Room()
         {
@@ -15,15 +17,6 @@
                 { 1, 0, 0, 0, 0, 0, 0, 1},
                 { 1, 1, 1, 0, 0, 1, 1, 1},
             };
-        }
-
-        public override Obstacle Clone()
-        {
-            var clonedRoom = new Room
-            {
-                Points = (int[,])Points.Clone() // Deep copy of the Points array
-            };
-            return clonedRoom;
         }
     }
 }

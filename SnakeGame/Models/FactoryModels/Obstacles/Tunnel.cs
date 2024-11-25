@@ -1,6 +1,8 @@
-﻿namespace SnakeGame.Models.FactoryModels
+﻿using SnakeGame.Models.FactoryModels.Obstacles;
+
+namespace SnakeGame.Models.FactoryModels
 {
-    public class Tunnel : Obstacle
+    public class Tunnel : ObstacleFlyweight
     {
         public Tunnel()
         {
@@ -27,15 +29,6 @@
                     { 1, 1, 1, 1, 1, 1},
                 };
             }
-        }
-
-        public override Obstacle Clone()
-        {
-            var clonedTunnel = new Tunnel
-            {
-                Points = (int[,])Points.Clone() // Deep copy of the Points array
-            };
-            return clonedTunnel;
         }
     }
 }

@@ -10,7 +10,7 @@ namespace SnakeGame.Factories
     {
         public Obstacle generateObstacle()
         {
-            return new SmallRock();
+            return new Obstacle("small_rock");
         }
 
         public Consumable generateConsumable(GameInstance instance)
