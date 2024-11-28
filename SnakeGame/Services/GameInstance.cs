@@ -4,6 +4,7 @@ using SnakeGame.Models;
 using SnakeGame.Adapters;
 using SnakeGame.Iterators;
 using SnakeGame.Template;
+using SnakeGame.Proxies;
 
 namespace SnakeGame.Services
 {
@@ -11,6 +12,7 @@ namespace SnakeGame.Services
     {
         public int InstanceId { get; set; }
         private Timer _timer;
+        public ILeaderboard _leaderboard;
         public Dictionary<string, Snake> Snakes { get; set; } = new();
         public bool IsGameRunning { get; set; } = false;
         public ILevelFactory LevelFactory { get; set; }
@@ -24,6 +26,7 @@ namespace SnakeGame.Services
             Consumables = new Dictionary<Point, Consumable>();
             LevelFactory = new Level1Factory();
             Map = LevelFactory.generateMap(this);
+            _leaderboard = new HighscoreLeaderboardProxy();
         }
         public void StartTimer()
         {
@@ -216,6 +219,13 @@ namespace SnakeGame.Services
                 }
                 if (!snake.IsAlive)
                 {
+                    int score = snake.Body.Count;
+                    if (_leaderboard.IsHighScore(score))
+                    {
+                        _leaderboard.AddScore(score, snake.Name);
+                        GameService.Instance.UpdateGlobalLeaderboard();
+
+                    }
                     RemoveSnake(snake.ConnectionId);
                 }
             }
