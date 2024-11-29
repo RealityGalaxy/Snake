@@ -2,6 +2,7 @@
 using SnakeGame.Models;
 using SnakeGame.Models.FactoryModels;
 using SnakeGame.Services;
+using SnakeGame.States;
 
 namespace SnakeGame.Commands
 {
@@ -42,7 +43,7 @@ namespace SnakeGame.Commands
                 entry => entry.Value // Assuming Snake has a copy constructor
             );
 
-            gameInstance.ResetGame();
+            gameInstance.GenerateGame();
             return true;
         }
 
