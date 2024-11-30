@@ -416,6 +416,9 @@ function updateTimerDisplay() {
     document.getElementById('timer').textContent = formattedTime;
 }
 
+
+// Don't remove these bottom 2, otherwise it won't work (no clue why)
+
 // Function to send a restart game command to the server when the timer runs out
 function sendRestartGameCommand() {
     connection.invoke("RestartGame", currentInstance).catch(function (err) {
