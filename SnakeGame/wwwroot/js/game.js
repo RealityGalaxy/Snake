@@ -294,19 +294,19 @@ function updateUIBasedOnState() {
 
     switch (currentState) {
         case "Generated":
-            startGameBtn.style.display = "inline-block";  // Show "Start Game" button
-            resetGameBtn.style.display = "inline-block";  // Show "Reset" button
+            startGameBtn.style.display = "inline-block"; 
+            resetGameBtn.style.display = "inline-block"; 
             break;
         case "Started":
-            startGameBtn.style.display = "inline-block";  // Show "End Game" button
-            pauseGameBtn.style.display = "inline-block";  // Show "Pause/Resume" button
+            endGameBtn.style.display = "inline-block";  
+            pauseGameBtn.style.display = "inline-block"; 
             break;
         case "Stopped":
-            startGameBtn.style.display = "inline-block";  // Show "Start Game" button
-            pauseGameBtn.style.display = "inline-block";  // Show "Resume Game" button
+            endGameBtn.style.display = "inline-block"; 
+            resumeGameBtn.style.display = "inline-block"; 
             break;
         case "Ended":
-            resetGameBtn.style.display = "inline-block";  // Show "Reset" button
+            resetGameBtn.style.display = "inline-block"; 
             break;
     }
 }
@@ -315,27 +315,38 @@ startGameBtn.addEventListener('click', function () {
     if (currentState === "Generated" || currentState === "Stopped") {
         connection.invoke("StartGame", currentInstance).catch(console.error);
         startTimer(); // Start the timer when the game begins
-    } else if (currentState === "Started") {
-        connection.invoke("EndGame", currentInstance).catch(console.error);
-        clearInterval(timerInterval); // Stop the timer when the game ends
     }
 });
+endGameBtn.addEventListener('click', function () {
+    if (currentState === "Started" || currentState === "Stopped") {
+        connection.invoke("EndGame", currentInstance).catch(console.error);
+        clearInterval(timerInterval); // Stop the timer on end
+        updateTimerDisplay(); // Reset the displayed time
+    }
+}
+);
 pauseGameBtn.addEventListener('click', function () {
     if (currentState === "Started") {
         connection.invoke("PauseGame", currentInstance).catch(console.error);
         pauseTimer(); // Pause the timer
-    } else if (currentState === "Stopped") {
+    }
+});
+resumeGameBtn.addEventListener('click', function () {
+    if (currentState === "Stopped") {
         connection.invoke("ResumeGame", currentInstance).catch(console.error);
         resumeTimer(); // Resume the timer
     }
-});
+}
+);
 resetGameBtn.addEventListener('click', function () {
-    if (currentState !== "Started") {
+    if (currentState === "Ended" || currentState === "Generated") {
         connection.invoke("ResetGame", selectedLevel, currentInstance).catch(console.error);
         clearInterval(timerInterval); // Stop the timer on reset
         updateTimerDisplay(); // Reset the displayed time
     }
 });
+
+
 
 
 
