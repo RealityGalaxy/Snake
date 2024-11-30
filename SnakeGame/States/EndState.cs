@@ -8,10 +8,10 @@ namespace SnakeGame.States
     {
         public void EnterState(GameInstance instance)
         {
-            instance.IsGameRunning = false;
-            Console.WriteLine("EndState log: Game ended.");
             instance.Snakes.Clear();
             instance.Consumables.Clear();
+            instance.IsGameRunning = false;
+            Console.WriteLine("EndState log: Game ended.");
         }
         public void StartGame(GameInstance instance) => Console.WriteLine("EndState log: Cannot start game. Game is already ended.");
 

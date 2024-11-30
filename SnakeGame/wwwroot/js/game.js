@@ -263,6 +263,7 @@ const resetGameBtn = document.getElementById('resetGameBtn');
 const endGameBtn = document.getElementById('endGameBtn');
 const resumeGameBtn = document.getElementById('resumeGameBtn');
 const pauseGameBtn = document.getElementById('pauseGameBtn');
+const joinGameBtn = document.getElementById('joinGameBtn');
 
 connection.on("GameStarted", function () {
     currentState = "Started";
@@ -291,6 +292,8 @@ function updateUIBasedOnState() {
     resetGameBtn.style.display = "none";
     endGameBtn.style.display = "none";
     resumeGameBtn.style.display = "none";
+    joinGameBtn.style.display = "inline-block";
+
 
     switch (currentState) {
         case "Generated":
@@ -306,7 +309,8 @@ function updateUIBasedOnState() {
             resumeGameBtn.style.display = "inline-block"; 
             break;
         case "Ended":
-            resetGameBtn.style.display = "inline-block"; 
+            resetGameBtn.style.display = "inline-block";
+            joinGameBtn.style.display = "none";
             break;
     }
 }
