@@ -8,14 +8,13 @@ namespace SnakeGameAnalyzer.Test
     [TestClass]
     public class MyAnalyzerAnalyzerTests
     {
-        private const string DiagnosticId = "SN0001";
+        private const string DiagnosticId = "VAR001";
 
         // Test case where 'var' is used - should trigger a diagnostic
         [TestMethod]
         public async Task VarUsage_ShouldTriggerDiagnostic()
         {
-            var testCode = @"
-using System;
+            var testCode = @"using System;
 
 namespace TestNamespace
 {
@@ -29,7 +28,7 @@ namespace TestNamespace
 }";
 
             var expected = CSharpAnalyzerVerifier<MyAnalyzerAnalyzer>.Diagnostic(DiagnosticId)
-                .WithSpan(9, 17, 9, 20); // Adjust the span based on your code structure
+                .WithSpan(9, 13, 9, 16); // Adjust the span based on your code structure
 
             await CSharpAnalyzerVerifier<MyAnalyzerAnalyzer>.VerifyAnalyzerAsync(testCode, expected);
         }

@@ -4,6 +4,7 @@
 	<TargetFramework>net8.0</TargetFramework>
 	<Nullable>enable</Nullable>
 	<ImplicitUsings>enable</ImplicitUsings>
+	<AnalysisLevel>none</AnalysisLevel>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,16 +17,14 @@
   <ItemGroup>
 	<PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="8.0.8" />
 	<PackageReference Include="NAudio" Version="2.2.1" />
+	<PackageReference Include="VarAnalyzer" Version="1.1.0">
+	  <PrivateAssets>all</PrivateAssets>
+	  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	</PackageReference>
   </ItemGroup>
 
 	<ItemGroup>
 		<Content Include="Sounds\**\*.mp3" CopyToOutputDirectory="PreserveNewest" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\SnakeGameAnalyzer\SnakeGameAnalyzer.Package\SnakeGameAnalyzer.Package.csproj" />
-	  <ProjectReference Include="..\SnakeGameAnalyzer\SnakeGameAnalyzer.Test\SnakeGameAnalyzer.Test.csproj" />
-	  <ProjectReference Include="..\SnakeGameAnalyzer\SnakeGameAnalyzer\SnakeGameAnalyzer.csproj" />
 	</ItemGroup>
 
 

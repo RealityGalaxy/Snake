@@ -13,37 +13,38 @@ namespace SnakeGameAnalyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class MyAnalyzerAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "SN0001";
 
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
-            DiagnosticId,
-            "Var wrong",
-            "Try using not var",
-            "Design",
+            "VAR001",
+            "Avoid 'var' for type declarations",
+            "'var' should not be used; use explicit type declarations.",
+            "CodeStyle",
             DiagnosticSeverity.Warning,
-            isEnabledByDefault: true);
+            isEnabledByDefault: true
+        );
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+
 
         public override void Initialize(AnalysisContext context)
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-
-            // Example of registering a syntax node action
-            context.RegisterSyntaxNodeAction(AnalyzeSyntaxNode, Microsoft.CodeAnalysis.CSharp.SyntaxKind.LocalDeclarationStatement);
+            context.RegisterSyntaxNodeAction(AnalyzeVariableDeclaration, SyntaxKind.VariableDeclaration);
         }
 
-        private static void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context)
+        private void AnalyzeVariableDeclaration(SyntaxNodeAnalysisContext context)
         {
-            // Example logic: Report a diagnostic for "var" usage
-            var declaration = (Microsoft.CodeAnalysis.CSharp.Syntax.LocalDeclarationStatementSyntax)context.Node;
+            var variableDeclaration = (VariableDeclarationSyntax)context.Node;
 
-            if (declaration.Declaration.Type.IsVar)
+            // Check if the type is 'var'
+            if (variableDeclaration.Type.IsVar)
             {
-                var diagnostic = Diagnostic.Create(Rule, declaration.GetLocation());
+                // Report a diagnostic
+                var diagnostic = Diagnostic.Create(Rule, variableDeclaration.Type.GetLocation());
                 context.ReportDiagnostic(diagnostic);
             }
         }
+
     }
 }

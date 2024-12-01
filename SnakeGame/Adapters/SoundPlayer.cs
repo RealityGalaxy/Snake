@@ -15,6 +15,7 @@ namespace SnakeGame.Adapters
         public string PlaySound(string sound)
         {
             var soundPath = _soundManager.GetSoundPath(sound);
+
             if (soundPath == null)
             {
                 throw new Exception($"Sound '{sound}' not found.");

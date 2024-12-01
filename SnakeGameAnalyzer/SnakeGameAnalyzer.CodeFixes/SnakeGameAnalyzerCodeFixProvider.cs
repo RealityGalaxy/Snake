@@ -20,7 +20,7 @@ namespace SnakeGameAnalyzer
     {
         public sealed override ImmutableArray<string> FixableDiagnosticIds
         {
-            get { return ImmutableArray.Create(MyAnalyzerAnalyzer.DiagnosticId); }
+            get { return ImmutableArray.Create("VAR001"); }
         }
 
         public sealed override FixAllProvider GetFixAllProvider()
