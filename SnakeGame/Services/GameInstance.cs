@@ -4,6 +4,8 @@ using SnakeGame.Models;
 using SnakeGame.Adapters;
 using SnakeGame.Iterators;
 using SnakeGame.Template;
+using SnakeGame.Composites;
+using SnakeGame.Proxies;
 
 namespace SnakeGame.Services
 {
@@ -11,12 +13,16 @@ namespace SnakeGame.Services
     {
         public int InstanceId { get; set; }
         private Timer _timer;
+        public ILeaderboard _leaderboard;
         public Dictionary<string, Snake> Snakes { get; set; } = new();
         public bool IsGameRunning { get; set; } = false;
         public ILevelFactory LevelFactory { get; set; }
         public Dictionary<Point, Consumable> Consumables { get; set; }
         public Map Map { get; set; }
         public SoundPlayer SoundPlayer { get; set; } = new SoundPlayer();
+        public MovableComposite SnakeComposite { get; set; } = new MovableComposite();
+        public MovableComposite ConsumableComposite { get; set; } = new MovableComposite();
+
         public GameInstance(int id)
         {
             InstanceId = id;
@@ -24,6 +30,7 @@ namespace SnakeGame.Services
             Consumables = new Dictionary<Point, Consumable>();
             LevelFactory = new Level1Factory();
             Map = LevelFactory.generateMap(this);
+            _leaderboard = new HighscoreLeaderboardProxy();
         }
         public void StartTimer()
         {
@@ -54,6 +61,7 @@ namespace SnakeGame.Services
                 {
                     foodCounter = foodTimer;
                     Consumable food = LevelFactory.generateConsumable(this);
+                    ConsumableComposite.Add(food);
 
                     var sound = SoundPlayer.PlaySound("fruit_spawn");
                     GameService.Instance.PlaySound(sound, InstanceId);
@@ -64,10 +72,17 @@ namespace SnakeGame.Services
                     foodUpdateCounter = foodTimer / 4;
 
                     Dictionary<Point, Consumable> newConsumables = new();
+                    ConsumableComposite = new MovableComposite();
 
                     foreach (var consumable in Consumables.Values)
                     {
-                        consumable.Move();
+                        ConsumableComposite.Add(consumable);
+                    }
+
+                    ConsumableComposite.Move();
+
+                    foreach (var consumable in Consumables.Values)
+                    {
                         newConsumables.Add(consumable.Position, consumable);
                     }
 
@@ -178,6 +193,8 @@ namespace SnakeGame.Services
             Snake snake = new Snake(connectionId, GetRandomEmptyPosition(), GameService.Instance, color, name, template);
             if(Snakes.TryAdd(snake.ConnectionId, snake))
             {
+                SnakeComposite.Add(snake);
+
                 // Mark the initial position on the map
                 var head = snake.Body.First.Value;
                 Map.Grid[head.X, head.Y] = Map.CellType.Snake;
@@ -195,15 +212,19 @@ namespace SnakeGame.Services
         {
             var snakeIterator = GetIterator();
 
-            while (snakeIterator.HasNext())
-            {
-                var snake = snakeIterator.Next();
-                if (snake == null)
-                {
-                    continue;
-                }
-                snake.Move();
-            }
+            // Temporarily disable iterator here
+            // Changed it to composite pattern
+            //while (snakeIterator.HasNext())
+            //{
+            //    var snake = snakeIterator.Next();
+            //    if (snake == null)
+            //    {
+            //        continue;
+            //    }
+            //    snake.Move();
+            //}
+
+            SnakeComposite.Move();
 
             snakeIterator = GetIterator();
 
@@ -216,6 +237,13 @@ namespace SnakeGame.Services
                 }
                 if (!snake.IsAlive)
                 {
+                    int score = snake.Body.Count;
+                    if (_leaderboard.IsHighScore(score))
+                    {
+                        _leaderboard.AddScore(score, snake.Name);
+                        GameService.Instance.UpdateGlobalLeaderboard();
+
+                    }
                     RemoveSnake(snake.ConnectionId);
                 }
             }

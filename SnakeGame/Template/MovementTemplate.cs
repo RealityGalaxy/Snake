@@ -1,6 +1,8 @@
-﻿using SnakeGame.Models;
+﻿using SnakeGame.Handlers;
+using SnakeGame.Models;
 using SnakeGame.Models.FactoryModels;
 using SnakeGame.Models.FactoryModels.Fruit;
+using SnakeGame.ResponsibilityChains;
 using SnakeGame.Services;
 using static SnakeGame.Models.Snake;
 
@@ -8,6 +10,17 @@ namespace SnakeGame.Template
 {
     public abstract class MovementTemplate
     {
+        private readonly ICollisionHandler _collisionHandler;
+
+        public MovementTemplate()
+        {
+            //Chain of responsibility set-up
+            _collisionHandler = new WallCollisionHandler(
+            new SelfCollisionHandler(
+                new FruitCollisionHandler(
+                    new PoisonCollisionHandler(null)))); // End of chain
+        }
+
         public void Move(Snake snake)
         {
             if (!snake.IsAlive) return;
@@ -39,30 +52,16 @@ namespace SnakeGame.Template
             var head = snake.Body.First.Value;
             Point newHead = GetNextHeadPosition(head, snake);
 
-            // Collision detection with walls or self
-            if (IsCollision(newHead, GameService.Instance.GetInstance(snake.ConnectionId)) && snake.CurrentDirection != Direction.None)
+            // Implementing chain of responsibility here
+
+            CollisionResult collisionResult = _collisionHandler.HandleCollision(newHead, snake);
+
+            if (collisionResult.KillSnake)
             {
                 snake.IsAlive = false;
                 return;
             }
-
-            // Check for fruit consumption
-            if (IsFood(newHead, snake))
-            {
-                // Eat the fruit
-                Consumable food = GameService.Instance.GameInstances[GameService.Instance.GetInstance(snake.ConnectionId)].Consumables[newHead];
-                if (food != null)
-                {
-                    snake.tempFood += food.Consume();
-                }
-                if (food is RainbowFruit)
-                {
-                    snake.Movement = new FastMovementTemplate();
-                    snake.StartRainbowing();
-                    snake.RainbowTimer = 20;
-                }
-                GameService.Instance.GameInstances[GameService.Instance.GetInstance(snake.ConnectionId)].Consumables.Remove(newHead);
-            }
+            // ------------------------------------------
 
             // Grow the snake by not removing the tail
             if (snake.tempFood > 0 && snake.CurrentDirection != Direction.None)

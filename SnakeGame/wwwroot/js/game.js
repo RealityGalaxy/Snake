@@ -61,32 +61,51 @@ function undo() {
     });
 }
 
-function updateLeaderboard(gameState) {
-    // Sort the snakes by body length (size), in descending order (biggest snake first)
-    const snakes = gameState.snakes;
-    const sortedSnakes = snakes.sort((a, b) => b.body.length - a.body.length)
 
-    // Select the leaderboard element
-    const leaderboard = document.querySelector('ul');
+connection.on("UpdateGlobalLeaderboard", function (topScores) {
+    const sortedScores = topScores.sort((a, b) => b.score - a.score);
+    console.log(sortedScores);
+
+    const highScores = document.querySelector('.highscores ul');
+    if (!highScores) {
+        console.error("Highscores element not found. Check your HTML structure.");
+        return;
+    }
+
+    // Clear the current leaderboard
+    highScores.innerHTML = '';
+
+    // Loop through each score and create a new list item for the leaderboard
+    sortedScores.forEach((score, index) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${index + 1}. ${score.key} - ${score.value}`;
+        highScores.appendChild(listItem);
+    });
+});
+
+
+function updateLeaderboard(gameState) {
+    const snakes = gameState.snakes;
+    const sortedSnakes = snakes.sort((a, b) => b.body.length - a.body.length);
+
+    const leaderboard = document.querySelector('.leaderboard ul');
+    if (!leaderboard) {
+        console.error("Leaderboard element not found. Check your HTML structure.");
+        return;
+    }
 
     // Clear the current leaderboard
     leaderboard.innerHTML = '';
 
     // Loop through each snake and create a new list item for the leaderboard
     sortedSnakes.forEach((snake, index) => {
-        // Create a list item
         const listItem = document.createElement('li');
-
-        // Set the text content to the snake's rank, name, and size
-        listItem.textContent = `${index + 1}. ${snake.name}`; // Adding rank (1., 2., etc.)
-
-        // Set the color of the text to match the snake's color
+        listItem.textContent = `${index + 1}. ${snake.name}`;
         listItem.style.color = snake.color;
-
-        // Append the list item to the leaderboard
         leaderboard.appendChild(listItem);
     });
 }
+
 
 
 document.addEventListener('keydown', function (event) {
@@ -249,6 +268,9 @@ connection.on("GameStarted", function () {
 connection.on("GameReset", function () {
     console.log("Game reset");
 });
+
+
+
 
 connection.on("PlaySound", function (soundFile) {
     const audio = new Audio(`/Sounds/${soundFile}`);

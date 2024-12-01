@@ -1,10 +1,11 @@
 ﻿using SnakeGame.Iterators;
 using SnakeGame.Services;
 using SnakeGame.Template;
+using SnakeGame.Composites;
 
 namespace SnakeGame.Models
 {
-    public class Snake
+    public class Snake : IMovable
     {
         public string ConnectionId { get; }
         public LinkedList<Point> Body { get; }
@@ -19,7 +20,7 @@ namespace SnakeGame.Models
         private GameService _gameService;
 
         public int tempFood = 0;
-        public int RainbowTimer = 20;
+        public int RainbowTimer = 0;
         public int SpawnTimer = 24;
 
         public Snake(string connectionId, Point startPosition, GameService gameService, string color, string name, MovementTemplate movement)
@@ -104,6 +105,11 @@ namespace SnakeGame.Models
             Down,
             Left,
             None
+        }
+
+        public void GenerateNewPosition()
+        {
+            // yeah no, this does nothing. The only reason this exists is to make the Composite unsafe
         }
     }
 }
