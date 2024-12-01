@@ -2,11 +2,11 @@
 
 namespace SnakeGame.Commands
 {
-    public class PauseCommand : ICommand
+    public class EndCommand : ICommand
     {
         public bool Execute(int instance, Dictionary<string, string> args)
         {
-            GameService.Instance.GameInstances[instance].PauseGame();
+            GameService.Instance.GameInstances[instance].EndGame();
             return false;
         }
 

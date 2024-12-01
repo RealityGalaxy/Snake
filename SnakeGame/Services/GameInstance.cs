@@ -6,6 +6,7 @@ using SnakeGame.Iterators;
 using SnakeGame.Template;
 using SnakeGame.Composites;
 using SnakeGame.Proxies;
+using SnakeGame.States;
 
 namespace SnakeGame.Services
 {
@@ -14,6 +15,7 @@ namespace SnakeGame.Services
         public int InstanceId { get; set; }
         private Timer _timer;
         public ILeaderboard _leaderboard;
+        public IGameState CurrentState { get; private set; }
         public Dictionary<string, Snake> Snakes { get; set; } = new();
         public bool IsGameRunning { get; set; } = false;
         public ILevelFactory LevelFactory { get; set; }
@@ -22,16 +24,34 @@ namespace SnakeGame.Services
         public SoundPlayer SoundPlayer { get; set; } = new SoundPlayer();
         public MovableComposite SnakeComposite { get; set; } = new MovableComposite();
         public MovableComposite ConsumableComposite { get; set; } = new MovableComposite();
+        private int _timerDuration = 120; // 2 minutes;
+        private int _timerRemaining;
 
         public GameInstance(int id)
         {
             InstanceId = id;
+            _timerRemaining = _timerDuration;
             _timer = new Timer(GameLoop, null, Timeout.Infinite, Timeout.Infinite);
-            Consumables = new Dictionary<Point, Consumable>();
             LevelFactory = new Level1Factory();
             Map = LevelFactory.generateMap(this);
             _leaderboard = new HighscoreLeaderboardProxy();
+
+            SetState(new GeneratedState()); // Initial state
         }
+
+        public void SetState(IGameState newState)
+        {
+            Console.WriteLine($"Game state changed from {CurrentState?.ToString()} to {newState.ToString()}");
+            CurrentState = newState;
+            CurrentState?.EnterState(this);
+        }
+
+        public void GenerateGame() => SetState(new GeneratedState());
+        public void StartGame() => CurrentState.StartGame(this);
+        public void PauseGame() => CurrentState.PauseGame(this);
+        public void ResumeGame() => CurrentState.ResumeGame(this);
+        public void EndGame() => CurrentState.EndGame(this);
+
         public void StartTimer()
         {
             if (_timer != null)
@@ -40,6 +60,18 @@ namespace SnakeGame.Services
             }
         }
 
+        public void PauseTimer()
+        {
+            if (_timer != null)
+            {
+                _timer.Change(Timeout.Infinite, Timeout.Infinite);
+            }
+        }
+
+        public void ResetTimer()
+        {
+            _timerRemaining = _timerDuration;
+        }
 
         private const int foodTimer = 120;
         private int foodCounter = foodTimer;
@@ -112,6 +144,7 @@ namespace SnakeGame.Services
 
             var snakesList = new List<object>();
             var snakeIterator = GetIterator();
+            var currState = CurrentState.ToString();
 
             while (snakeIterator.HasNext())
             {
@@ -144,7 +177,8 @@ namespace SnakeGame.Services
                 height = Map.Size.Height,
                 walls,
                 fruits,
-                snakes = snakesList
+                snakes = snakesList,
+                currState
             };
         }
         public void ResetGame()

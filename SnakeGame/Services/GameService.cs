@@ -34,7 +34,12 @@ namespace SnakeGame.Services
 
         public int GetInstance(string connectionId)
         {
-            return Subscribers.Single(x => x.ConnectionId == connectionId).InstanceNumber;
+            var subscriber = Subscribers.SingleOrDefault(x => x.ConnectionId == connectionId);
+            if (subscriber == null)
+            {
+                throw new InvalidOperationException($"No subscriber found with ConnectionId: {connectionId}");
+            }
+            return subscriber.InstanceNumber;
         }
 
         public int Unsubscribe(string connectionId)

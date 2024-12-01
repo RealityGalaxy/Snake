@@ -6,7 +6,7 @@ namespace SnakeGame.Commands
     {
         public bool Execute(int instance, Dictionary<string, string> args)
         {
-            GameService.Instance.GameInstances[instance].IsGameRunning = true;
+            GameService.Instance.GameInstances[instance].StartGame();
             return false;
         }
 
