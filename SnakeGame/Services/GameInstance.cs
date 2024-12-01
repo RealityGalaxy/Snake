@@ -33,6 +33,7 @@ namespace SnakeGame.Services
             _timerRemaining = _timerDuration;
             _timer = new Timer(GameLoop, null, Timeout.Infinite, Timeout.Infinite);
             LevelFactory = new Level1Factory();
+            Map = LevelFactory.generateMap(this);
             _leaderboard = new HighscoreLeaderboardProxy();
 
             SetState(new GeneratedState()); // Initial state
