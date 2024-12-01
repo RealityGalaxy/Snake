@@ -22,5 +22,11 @@
 		<Content Include="Sounds\**\*.mp3" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\SnakeGameAnalyzer\SnakeGameAnalyzer.Package\SnakeGameAnalyzer.Package.csproj" />
+	  <ProjectReference Include="..\SnakeGameAnalyzer\SnakeGameAnalyzer.Test\SnakeGameAnalyzer.Test.csproj" />
+	  <ProjectReference Include="..\SnakeGameAnalyzer\SnakeGameAnalyzer\SnakeGameAnalyzer.csproj" />
+	</ItemGroup>
+
 
 </Project>

@@ -14,6 +14,7 @@ namespace SnakeGame.Models
         public string Name { get; set; }
         public bool IsAlive { get; set; } = true;
         public int MoveTimer { get; set; } = 6;
+        
         public MovementTemplate BaseMovement { get; set; }
         public MovementTemplate Movement { get; set; }
         private GameService _gameService;
