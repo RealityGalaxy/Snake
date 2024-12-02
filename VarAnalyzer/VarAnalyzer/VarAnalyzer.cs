@@ -27,11 +27,9 @@ public class VarDeclarationAnalyzer : DiagnosticAnalyzer
 
     public override void Initialize(AnalysisContext context)
     {
-        // To optimize performance, configure analysis settings
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
 
-        // Register an action to be called for each VariableDeclarationSyntax node
         context.RegisterSyntaxNodeAction(AnalyzeVariableDeclaration, SyntaxKind.VariableDeclaration);
     }
 
@@ -39,10 +37,8 @@ public class VarDeclarationAnalyzer : DiagnosticAnalyzer
     {
         var variableDeclaration = (VariableDeclarationSyntax)context.Node;
 
-        // Check if the variable is implicitly typed (using 'var')
         if (variableDeclaration.Type.IsVar)
         {
-            // Report a diagnostic at the location of the 'var' keyword
             var diagnostic = Diagnostic.Create(Rule, variableDeclaration.Type.GetLocation());
             context.ReportDiagnostic(diagnostic);
         }

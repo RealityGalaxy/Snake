@@ -30,11 +30,9 @@ public class MethodLengthAnalyzer : DiagnosticAnalyzer
 
     public override void Initialize(AnalysisContext context)
     {
-        // Exclude auto-generated code
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
 
-        // Register action to analyze method declarations
         context.RegisterSyntaxNodeAction(AnalyzeMethodDeclaration, SyntaxKind.MethodDeclaration);
     }
 
@@ -42,28 +40,24 @@ public class MethodLengthAnalyzer : DiagnosticAnalyzer
     {
         var methodDeclaration = (MethodDeclarationSyntax)context.Node;
 
-        // Get the syntax tree for the method
         var syntaxTree = methodDeclaration.SyntaxTree;
         var root = syntaxTree.GetRoot(context.CancellationToken);
 
-        // Get the span of the method body
         var body = methodDeclaration.Body;
         var expressionBody = methodDeclaration.ExpressionBody;
 
-        // If method has no body (e.g., interface method), skip analysis
         if (body == null && expressionBody == null)
         {
             return;
         }
 
-        // Determine the start and end lines of the method
         FileLinePositionSpan methodSpan;
 
         if (body != null)
         {
             methodSpan = body.GetLocation().GetLineSpan();
         }
-        else // Expression-bodied method (arrow expression)
+        else
         {
             methodSpan = expressionBody.GetLocation().GetLineSpan();
         }

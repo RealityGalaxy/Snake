@@ -40,22 +40,18 @@ public class NoHardcodedValuesAnalyzer : DiagnosticAnalyzer
     {
         var invocationExpression = (InvocationExpressionSyntax)context.Node;
 
-        // Get the argument list
         var argumentList = invocationExpression.ArgumentList;
         if (argumentList == null)
         {
             return;
         }
 
-        // Check each argument
         foreach (var argument in argumentList.Arguments)
         {
             var expression = argument.Expression;
 
-            // Check if the argument is a literal expression
             if (expression is LiteralExpressionSyntax)
             {
-                // Get the method name
                 var symbolInfo = context.SemanticModel.GetSymbolInfo(invocationExpression, context.CancellationToken);
                 var methodSymbol = symbolInfo.Symbol as IMethodSymbol;
 

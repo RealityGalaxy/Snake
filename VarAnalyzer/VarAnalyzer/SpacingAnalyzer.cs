@@ -38,7 +38,6 @@ public class SpacingAnalyzer : DiagnosticAnalyzer
         var syntaxTree = statementNode.SyntaxTree;
 
 
-        // Get the leading and trailing trivia (whitespace, comments, etc.)
         var leadingTrivia = statementNode.GetLeadingTrivia();
         var trailingTrivia = statementNode.GetTrailingTrivia();
 
@@ -58,7 +57,7 @@ public class SpacingAnalyzer : DiagnosticAnalyzer
             {
                 message = $"Add a blank line before this '{statementKind}' statement";
             }
-            else // !hasBlankLineAfter
+            else
             {
                 message = $"Add a blank line after this '{statementKind}' statement";
             }
@@ -96,7 +95,7 @@ public class SpacingAnalyzer : DiagnosticAnalyzer
             }
             else
             {
-                break; // Stop at any other trivia
+                break;
             }
 
             if (newLineCount >= 1)
@@ -105,7 +104,7 @@ public class SpacingAnalyzer : DiagnosticAnalyzer
             }
         }
 
-        return newLineCount >= 1; // Return true if at least one blank line (two newlines) is found
+        return newLineCount >= 1; 
     }
 
 
@@ -127,7 +126,7 @@ public class SpacingAnalyzer : DiagnosticAnalyzer
             }
             else
             {
-                break; // Stop at any other trivia
+                break;
             }
 
             if (newLineCount >= 1)
@@ -136,7 +135,7 @@ public class SpacingAnalyzer : DiagnosticAnalyzer
             }
         }
 
-        return newLineCount >= 1; // Return true if at least one blank line (two newlines) is found
+        return newLineCount >= 1;
     }
 
 
