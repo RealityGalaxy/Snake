@@ -25,7 +25,25 @@ namespace SnakeGame.Hubs
         {
             _commandManager.ExecuteCommand(CommandManager.Pause, instance);
         }
-
+        public async Task SendCommand(string command, int instance)
+        {
+            if (_gameService.GameInstances[instance].Snakes.TryGetValue(Context.ConnectionId, out Snake snake))
+            {
+                try
+                {
+                    snake.ExecuteCommand(command);
+                    await Clients.Caller.SendAsync("ReceiveMessage", "Command executed.");
+                }
+                catch (Exception ex)
+                {
+                    await Clients.Caller.SendAsync("ReceiveMessage", $"Error: {ex.Message}");
+                }
+            }
+            else
+            {
+                await Clients.Caller.SendAsync("ReceiveMessage", "Snake not found.");
+            }
+        }
         public async Task SendDirection(string direction, int instance)
         {
             // Update the snake's direction

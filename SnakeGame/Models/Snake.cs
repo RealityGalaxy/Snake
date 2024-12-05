@@ -2,6 +2,7 @@
 using SnakeGame.Services;
 using SnakeGame.Template;
 using SnakeGame.Composites;
+using SnakeGame.Interpreter;
 
 namespace SnakeGame.Models
 {
@@ -111,5 +112,13 @@ namespace SnakeGame.Models
         {
             // yeah no, this does nothing. The only reason this exists is to make the Composite unsafe
         }
+        
+        public void ExecuteCommand(string command)
+        {
+            var context = new Context(this, command);
+            var expression = Parser.Parse(context);
+            expression.Interpret(context);
+        }
+
     }
 }
