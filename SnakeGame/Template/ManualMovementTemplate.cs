@@ -4,7 +4,7 @@
     {
         protected override bool DirectionReset()
         {
-            return false;
+            return true;
         }
     }
 }
