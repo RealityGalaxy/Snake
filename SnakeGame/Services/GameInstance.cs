@@ -30,7 +30,7 @@ namespace SnakeGame.Services
         private int _timerRemaining;
 
 
-        private readonly IGameMediator _mediator;
+        private readonly IGameMediator _mediator; // private readonly turėtų būti
         public GameInstance(int id, IGameMediator mediator)
         {
             InstanceId = id;
