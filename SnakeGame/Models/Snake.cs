@@ -3,6 +3,8 @@ using SnakeGame.Services;
 using SnakeGame.Template;
 using SnakeGame.Composites;
 using SnakeGame.Interpreter;
+using SnakeGame.Mediator;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace SnakeGame.Models
 {
@@ -24,18 +26,21 @@ namespace SnakeGame.Models
         public int RainbowTimer = 0;
         public int SpawnTimer = 24;
 
-        public Snake(string connectionId, Point startPosition, GameService gameService, string color, string name, MovementTemplate movement)
+        private IGameMediator _mediator;
+
+        public Snake(string connectionId, Point startPosition, IGameMediator mediator, string color, string name, MovementTemplate movement)
         {
             ConnectionId = connectionId;
             Body = new LinkedList<Point>();
             Body.AddFirst(startPosition);
             CurrentDirection = Direction.Right;
-            _gameService = gameService;
+            //_gameService = gameService;
             BaseColor = color;
             Color = BaseColor;
             Name = name;
             BaseMovement = movement;
             Movement = BaseMovement;
+            _mediator = mediator;
         }
 
         public void Turn(Direction direction)

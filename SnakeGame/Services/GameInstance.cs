@@ -7,6 +7,8 @@ using SnakeGame.Template;
 using SnakeGame.Composites;
 using SnakeGame.Proxies;
 using SnakeGame.States;
+using SnakeGame.Mediator;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace SnakeGame.Services
 {
@@ -27,7 +29,9 @@ namespace SnakeGame.Services
         private int _timerDuration = 120; // 2 minutes;
         private int _timerRemaining;
 
-        public GameInstance(int id)
+
+        private readonly IGameMediator _mediator;
+        public GameInstance(int id, IGameMediator mediator)
         {
             InstanceId = id;
             _timerRemaining = _timerDuration;
@@ -35,6 +39,8 @@ namespace SnakeGame.Services
             LevelFactory = new Level1Factory();
             Map = LevelFactory.generateMap(this);
             _leaderboard = new HighscoreLeaderboardProxy();
+
+            _mediator = mediator;
 
             SetState(new GeneratedState()); // Initial state
         }
@@ -121,7 +127,7 @@ namespace SnakeGame.Services
                     Consumables = newConsumables;
                 }
             }
-            GameService.Instance.BroadcastGameState(GetGameState(), InstanceId);
+            _mediator.BroadcastGameState(GetGameState(), InstanceId);
         }
 
 
@@ -217,14 +223,14 @@ namespace SnakeGame.Services
                 }
 
                 var sound = SoundPlayer.PlaySound("death");
-                GameService.Instance.PlaySound(sound, InstanceId);
+                _mediator.PlaySound(sound, InstanceId);
             }
         }
 
         public void AddSnake(string connectionId, string color, string name, int instance, bool isManual)
         {
             MovementTemplate template = isManual ? new ManualMovementTemplate() : new BasicMovementTemplate();
-            Snake snake = new Snake(connectionId, GetRandomEmptyPosition(), GameService.Instance, color, name, template);
+            Snake snake = new Snake(connectionId, GetRandomEmptyPosition(), _mediator, color, name, template);
             if(Snakes.TryAdd(snake.ConnectionId, snake))
             {
                 SnakeComposite.Add(snake);
@@ -234,7 +240,7 @@ namespace SnakeGame.Services
                 Map.Grid[head.X, head.Y] = Map.CellType.Snake;
 
                 var sound = SoundPlayer.PlaySound("snake_spawn");
-                GameService.Instance.PlaySound(sound, InstanceId);
+                _mediator.PlaySound(sound, InstanceId);
             }
         }
 
@@ -244,7 +250,6 @@ namespace SnakeGame.Services
 
         private void UpdateGameState()
         {
-            var snakeIterator = GetIterator();
 
             // Temporarily disable iterator here
             // Changed it to composite pattern
@@ -259,6 +264,7 @@ namespace SnakeGame.Services
             //}
 
             SnakeComposite.Move();
+            var snakeIterator = GetIterator();
 
             snakeIterator = GetIterator();
 
@@ -275,7 +281,7 @@ namespace SnakeGame.Services
                     if (_leaderboard.IsHighScore(score))
                     {
                         _leaderboard.AddScore(score, snake.Name);
-                        GameService.Instance.UpdateGlobalLeaderboard();
+                        _mediator.UpdateGlobalLeaderboard();
 
                     }
                     RemoveSnake(snake.ConnectionId);
