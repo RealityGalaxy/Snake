@@ -9,9 +9,11 @@ using SnakeGame.Proxies;
 using SnakeGame.States;
 using SnakeGame.Mediator;
 using Microsoft.AspNetCore.Components.Forms;
+using SnakeGame.Mementos;
 
 namespace SnakeGame.Services
 {
+
     public class GameInstance
     {
         public int InstanceId { get; set; }
@@ -130,7 +132,35 @@ namespace SnakeGame.Services
             _mediator.BroadcastGameState(GetGameState(), InstanceId);
         }
 
+        public GameMemento CreateMemento()
+        {
+            return new GameMemento(Map.Grid, Snakes, Consumables, LevelFactory);
+        }
 
+        public void RestoreMemento(GameMemento memento)
+        {
+            // Restore map
+            Map = LevelFactory.generateMap(this);
+            // Overwrite the map grid with saved state
+            var width = memento.MapState.GetLength(0);
+            var height = memento.MapState.GetLength(1);
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    Map.Grid[x, y] = memento.MapState[x, y];
+                }
+            }
+
+            // Restore snakes
+            Snakes = memento.SnakeState.ToDictionary(entry => entry.Key, entry => entry.Value);
+
+            // Restore consumables
+            Consumables = memento.ConsumableState.ToDictionary(entry => entry.Key, entry => entry.Value);
+
+            // Restore LevelFactory
+            LevelFactory = memento.LevelFactoryState;
+        }
         private object GetGameState()
         {
             // Construct the game state object to send to clients
@@ -288,5 +318,6 @@ namespace SnakeGame.Services
                 }
             }
         }
+        
     }
 }
