@@ -24,12 +24,14 @@ public class FruitCollisionHandler : ICollisionHandler
             if (food != null)
             {
                 snake.tempFood += food.Consume();
+                //var sound = gameInstance.SoundPlayer.PlaySound("fruit_eat");
                 if (food is RainbowFruit && snake.RainbowTimer <= 0)
                 {
                     snake.Movement = new FastMovementTemplate();
                     snake.StartRainbowing();
                     snake.RainbowTimer = 20;
                 }
+                //gameInstance._mediator.PlaySound(sound, GameService.Instance.GetInstance(snake.ConnectionId));
 
                 gameInstance.Consumables.Remove(newHead);
             }

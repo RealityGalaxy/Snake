@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.SignalR;
 using SnakeGame.Hubs;
+using SnakeGame.Mediator;
 using SnakeGame.Proxies;
 using System.Collections.Generic;
 
@@ -34,7 +36,12 @@ namespace SnakeGame.Services
 
         public int GetInstance(string connectionId)
         {
-            return Subscribers.Single(x => x.ConnectionId == connectionId).InstanceNumber;
+            var subscriber = Subscribers.SingleOrDefault(x => x.ConnectionId == connectionId);
+            if (subscriber == null)
+            {
+                throw new InvalidOperationException($"No subscriber found with ConnectionId: {connectionId}");
+            }
+            return subscriber.InstanceNumber;
         }
 
         public int Unsubscribe(string connectionId)
@@ -71,9 +78,10 @@ namespace SnakeGame.Services
 
         public override Task StartAsync(CancellationToken cancellationToken)
         {
-            for(int i = 0; i < 4; i++)
+            IGameMediator mediator = new GameMediator(this);
+            for (int i = 0; i < 4; i++)
             {
-                GameInstances[i] = new GameInstance(i);
+                GameInstances[i] = new GameInstance(i, mediator);
                 GameInstances[i].StartTimer();
             }
             return base.StartAsync(cancellationToken);

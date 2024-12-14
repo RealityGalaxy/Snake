@@ -1,8 +1,11 @@
 ﻿const canvas = document.getElementById('gameCanvas');
 const context = canvas.getContext('2d');
 
+let currentState = "Generated";
+let gameRunning = false; // Flag to check if the game is running
 let cellSize = canvas.width / 30; // Adjusted to fit the grid size
 let currentInstance = 0;
+let isPlayerJoined = false;
 
 // Initialize SignalR connection
 const connection = new signalR.HubConnectionBuilder()
@@ -24,10 +27,52 @@ connection.on("ReceiveGameState", function (gameState) {
     // Update the canvas with the new game state
     drawGame(gameState);
     updateLeaderboard(gameState);
+    currentState = gameState.currState;
+
+    updateUIBasedOnState();
 });
 
 let selectedLevel = 1;  // Default to level 1
 document.getElementById('level1').checked = true;
+
+const commandTextBox = document.getElementById('commandTextBox');
+const sendCommandButton = document.getElementById('sendCommandButton');
+
+sendCommandButton.addEventListener('click', () => {
+    const command = commandTextBox.value;
+    sendCommandToServer(command);
+});
+
+commandTextBox.addEventListener('keyup', (event) => {
+    if (event.key === 'Enter') {
+        const command = commandTextBox.value;
+        sendCommandToServer(command);
+    }
+});
+
+// Function to send the command to the server
+function sendCommandToServer(command) {
+    const instance = currentInstance;
+
+    connection.invoke('SendCommand', command, instance)
+        .catch(err => console.error(err.toString()));
+
+    commandTextBox.value = '';
+}
+
+// Handler for server messages
+connection.on('ReceiveMessage', (message) => {
+    displayMessage(message);
+});
+
+function displayMessage(message) {
+    const messageArea = document.getElementById('messageArea');
+    if (messageArea) {
+        messageArea.textContent = message;
+    } else {
+        alert(message);
+    }
+}
 
 function selectLevel(level) {
     // Uncheck all levels first
@@ -49,12 +94,6 @@ function generateGame() {
     });
 }
 
-function pause() {
-    connection.invoke("Pause", currentInstance).catch(function (err) {
-        return console.error(err.toString());
-    });
-}
-
 function undo() {
     connection.invoke("Undo", currentInstance).catch(function (err) {
         return console.error(err.toString());
@@ -64,7 +103,6 @@ function undo() {
 
 connection.on("UpdateGlobalLeaderboard", function (topScores) {
     const sortedScores = topScores.sort((a, b) => b.score - a.score);
-    console.log(sortedScores);
 
     const highScores = document.querySelector('.highscores ul');
     if (!highScores) {
@@ -258,15 +296,32 @@ function drawGrid() {
     context.stroke();
 }
 
+
 const startGameBtn = document.getElementById('startGameBtn');
 const resetGameBtn = document.getElementById('resetGameBtn');
+const endGameBtn = document.getElementById('endGameBtn');
+const resumeGameBtn = document.getElementById('resumeGameBtn');
+const pauseGameBtn = document.getElementById('pauseGameBtn');
+const joinGameBtn = document.getElementById('joinGameBtn');
 
 connection.on("GameStarted", function () {
-    console.log("Game started");
+    currentState = "Started";
+    updateUIBasedOnState();
+});
+
+connection.on("GamePaused", function () {
+    currentState = "Stopped";
+    updateUIBasedOnState();
 });
 
 connection.on("GameReset", function () {
-    console.log("Game reset");
+    currentState = "Generated";
+    updateUIBasedOnState();
+});
+
+connection.on("GameEnded", function () {
+    currentState = "Ended";
+    updateUIBasedOnState();
 });
 
 
@@ -277,16 +332,78 @@ connection.on("PlaySound", function (soundFile) {
     audio.play().catch(error => console.error("Error playing sound:", error, " soundFile: ", soundFile));
 });
 
+function updateUIBasedOnState() {
+    // First, reset all button visibility
+    startGameBtn.style.display = "none";
+    pauseGameBtn.style.display = "none";
+    resetGameBtn.style.display = "none";
+    endGameBtn.style.display = "none";
+    resumeGameBtn.style.display = "none";
+    joinGameBtn.style.display = "inline-block";
+
+
+    switch (currentState) {
+        case "Generated":
+            startGameBtn.style.display = "inline-block"; 
+            resetGameBtn.style.display = "inline-block"; 
+            break;
+        case "Started":
+            endGameBtn.style.display = "inline-block";  
+            pauseGameBtn.style.display = "inline-block"; 
+            break;
+        case "Stopped":
+            endGameBtn.style.display = "inline-block"; 
+            resumeGameBtn.style.display = "inline-block"; 
+            break;
+        case "Ended":
+            resetGameBtn.style.display = "inline-block";
+            joinGameBtn.style.display = "none";
+            break;
+    }
+}
+
 startGameBtn.addEventListener('click', function () {
-    connection.invoke("StartGame", currentInstance).catch(function (err) {
-        return console.error(err.toString());
-    });
+    if (currentState === "Generated" || currentState === "Stopped") {
+        connection.invoke("StartGame", currentInstance).catch(console.error);
+        startTimer(); // Start the timer when the game begins
+    }
+});
+endGameBtn.addEventListener('click', function () {
+    if (currentState === "Started" || currentState === "Stopped") {
+        connection.invoke("EndGame", currentInstance).catch(console.error);
+        clearInterval(timerInterval); // Stop the timer on end
+        updateTimerDisplay(); // Reset the displayed time
+    }
+}
+);
+pauseGameBtn.addEventListener('click', function () {
+    if (currentState === "Started") {
+        connection.invoke("PauseGame", currentInstance).catch(console.error);
+        pauseTimer(); // Pause the timer
+    }
+});
+resumeGameBtn.addEventListener('click', function () {
+    if (currentState === "Stopped") {
+        connection.invoke("ResumeGame", currentInstance).catch(console.error);
+        resumeTimer(); // Resume the timer
+    }
+}
+);
+resetGameBtn.addEventListener('click', function () {
+    if (currentState === "Ended" || currentState === "Generated") {
+        connection.invoke("ResetGame", selectedLevel, currentInstance).catch(console.error);
+        clearInterval(timerInterval); // Stop the timer on reset
+        updateTimerDisplay(); // Reset the displayed time
+    }
 });
 
-resetGameBtn.addEventListener('click', function () {
-    connection.invoke("ResetGame", selectedLevel, currentInstance).catch(function (err) {
-        return console.error(err.toString());
-    });
+
+
+
+
+connection.on("PlaySound", function (soundFile) {
+    const audio = new Audio(`/Sounds/${soundFile}`);
+    audio.play().catch(error => console.error("Error playing sound:", error, " soundFile: ", soundFile));
 });
 
 function changeInstance(instance) {
@@ -296,25 +413,46 @@ function changeInstance(instance) {
     });
 }
 
+let timerPaused = false;
 let timerInterval;
 let remainingTime = 120; // 2 minutes in seconds
+let pausedTime = remainingTime;
 
 // Function to start the countdown timer when the game starts
 function startTimer() {
     clearInterval(timerInterval); // Ensure no previous timer is running
-    remainingTime = 120; // Reset to 2 minutes (120 seconds)
+    remainingTime = pausedTime || 120; // Reset to 2 minutes (120 seconds)
     updateTimerDisplay(); // Update the initial display
 
     // Start the countdown interval (runs every second)
     timerInterval = setInterval(function () {
-        remainingTime--;
-        updateTimerDisplay(); // Update the displayed time
+        if (!timerPaused) {
+            remainingTime--;
+            updateTimerDisplay(); // Update the displayed time
 
-        if (remainingTime <= 0) {
-            clearInterval(timerInterval); // Stop the timer
-            sendRestartGameCommand(); // Send restart game command to the server
+            if (remainingTime <= 0) {
+                clearInterval(timerInterval); // Stop the timer
+                sendRestartGameCommand(); // Send restart game command to the server
+            }
         }
     }, 1000); // 1000 ms = 1 second
+}
+
+// Function to pause the timer
+function pauseTimer() {
+    if (!timerPaused) {
+        timerPaused = true;
+        pausedTime = remainingTime; // Save the remaining time
+        clearInterval(timerInterval); // Stop the timer interval
+    }
+}
+
+// Function to resume the timer
+function resumeTimer() {
+    if (timerPaused) {
+        timerPaused = false;
+        startTimer(); // Restart the timer with the remaining time
+    }
 }
 
 // Function to update the displayed time on the webpage
@@ -324,6 +462,9 @@ function updateTimerDisplay() {
     const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     document.getElementById('timer').textContent = formattedTime;
 }
+
+
+// Don't remove these bottom 2, otherwise it won't work (no clue why)
 
 // Function to send a restart game command to the server when the timer runs out
 function sendRestartGameCommand() {

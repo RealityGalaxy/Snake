@@ -4,8 +4,10 @@
     {
         public Stack<ICommand> History { get; set; } = new Stack<ICommand>();
         public static PauseCommand Pause { get { return new PauseCommand(); } }
+        public static ResumeCommand Resume { get { return new ResumeCommand(); } }
         public static GenerateCommand Generate { get { return new GenerateCommand(); } }
         public static StartCommand Start { get { return new StartCommand(); } }
+        public static EndCommand End { get { return new EndCommand(); } }
         public static JoinCommand Join { get { return new JoinCommand(); } }
 
         public CommandManager() { }

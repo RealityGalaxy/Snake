@@ -2,6 +2,7 @@
 using SnakeGame.Commands;
 using SnakeGame.Models;
 using SnakeGame.Services;
+using System.Reflection.Emit;
 
 namespace SnakeGame.Hubs
 {
@@ -24,7 +25,25 @@ namespace SnakeGame.Hubs
         {
             _commandManager.ExecuteCommand(CommandManager.Pause, instance);
         }
-
+        public async Task SendCommand(string command, int instance)
+        {
+            if (_gameService.GameInstances[instance].Snakes.TryGetValue(Context.ConnectionId, out Snake snake))
+            {
+                try
+                {
+                    snake.ExecuteCommand(command);
+                    await Clients.Caller.SendAsync("ReceiveMessage", "Command executed.");
+                }
+                catch (Exception ex)
+                {
+                    await Clients.Caller.SendAsync("ReceiveMessage", $"Error: {ex.Message}");
+                }
+            }
+            else
+            {
+                await Clients.Caller.SendAsync("ReceiveMessage", "Snake not found.");
+            }
+        }
         public async Task SendDirection(string direction, int instance)
         {
             // Update the snake's direction
@@ -49,6 +68,24 @@ namespace SnakeGame.Hubs
         {
             _commandManager.ExecuteCommand(CommandManager.Generate, instance, new Dictionary<string, string> { { "level", level.ToString() } });
             await Clients.Clients(_gameService.GetSubscribersForInstance(instance)).SendAsync("GameReset");
+        }
+
+        public async Task PauseGame(int instance)
+        {
+            _commandManager.ExecuteCommand(CommandManager.Pause, instance);
+            await Clients.Clients(_gameService.GetSubscribersForInstance(instance)).SendAsync("GamePaused");
+        }
+
+        public async Task ResumeGame(int instance)
+        {
+            _commandManager.ExecuteCommand(CommandManager.Resume, instance);
+            await Clients.Clients(_gameService.GetSubscribersForInstance(instance)).SendAsync("GameResumed");
+        }
+
+        public async Task EndGame(int instance)
+        {
+            _commandManager.ExecuteCommand(CommandManager.End, instance);
+            await Clients.Clients(_gameService.GetSubscribersForInstance(instance)).SendAsync("GameEnded");
         }
 
         public async Task AddSnake(string color, string name, int instance, bool manual)
