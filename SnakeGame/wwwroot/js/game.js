@@ -35,6 +35,45 @@ connection.on("ReceiveGameState", function (gameState) {
 let selectedLevel = 1;  // Default to level 1
 document.getElementById('level1').checked = true;
 
+const commandTextBox = document.getElementById('commandTextBox');
+const sendCommandButton = document.getElementById('sendCommandButton');
+
+sendCommandButton.addEventListener('click', () => {
+    const command = commandTextBox.value;
+    sendCommandToServer(command);
+});
+
+commandTextBox.addEventListener('keyup', (event) => {
+    if (event.key === 'Enter') {
+        const command = commandTextBox.value;
+        sendCommandToServer(command);
+    }
+});
+
+// Function to send the command to the server
+function sendCommandToServer(command) {
+    const instance = currentInstance;
+
+    connection.invoke('SendCommand', command, instance)
+        .catch(err => console.error(err.toString()));
+
+    commandTextBox.value = '';
+}
+
+// Handler for server messages
+connection.on('ReceiveMessage', (message) => {
+    displayMessage(message);
+});
+
+function displayMessage(message) {
+    const messageArea = document.getElementById('messageArea');
+    if (messageArea) {
+        messageArea.textContent = message;
+    } else {
+        alert(message);
+    }
+}
+
 function selectLevel(level) {
     // Uncheck all levels first
     document.getElementById('level1').checked = false;

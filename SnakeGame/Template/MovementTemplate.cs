@@ -56,7 +56,7 @@ namespace SnakeGame.Template
 
             CollisionResult collisionResult = _collisionHandler.HandleCollision(newHead, snake);
 
-            if (collisionResult.KillSnake)
+            if (collisionResult.KillSnake && snake.CurrentDirection != Direction.None)
             {
                 snake.IsAlive = false;
                 return;

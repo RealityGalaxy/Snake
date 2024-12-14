@@ -15,6 +15,24 @@
             height: 300px;
             padding: 10px;
         }
+        #command-input {
+            margin-top: 10px;
+        }
+
+        #commandTextBox {
+            width: 200px;
+            padding: 5px;
+        }
+
+        #sendCommandButton {
+            padding: 5px 10px;
+        }
+
+        /* Style for the message area */
+        #messageArea {
+            margin-top: 10px;
+            color: red; /* Or any color you prefer */
+        }
 
         /* Style for the leaderboard */
         .leaderboard {
@@ -117,8 +135,13 @@
         <span>Enter your name: </span>
         <input type="text" id="playerName" placeholder="Your Name" />
         <label>
-            <input type="checkbox" id="manuam" name="manual" onclick="selectManual()"> Manual movement
+            <input type="checkbox" id="manual" name="manual" onclick="selectManual()"> Manual movement
         </label>
+        <div id="command-input">
+            <input type="text" id="commandTextBox" placeholder="Enter command here" />
+            <button id="sendCommandButton">Send Command</button>
+        </div>
+        <div id="messageArea"></div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.0/signalr.min.js"></script>
     <script src="js/game.js"></script>

@@ -7,9 +7,13 @@ using SnakeGame.Template;
 using SnakeGame.Composites;
 using SnakeGame.Proxies;
 using SnakeGame.States;
+using SnakeGame.Mediator;
+using Microsoft.AspNetCore.Components.Forms;
+using SnakeGame.Mementos;
 
 namespace SnakeGame.Services
 {
+
     public class GameInstance
     {
         public int InstanceId { get; set; }
@@ -27,7 +31,9 @@ namespace SnakeGame.Services
         private int _timerDuration = 120; // 2 minutes;
         private int _timerRemaining;
 
-        public GameInstance(int id)
+
+        private readonly IGameMediator _mediator; // private readonly turėtų būti
+        public GameInstance(int id, IGameMediator mediator)
         {
             InstanceId = id;
             _timerRemaining = _timerDuration;
@@ -35,6 +41,8 @@ namespace SnakeGame.Services
             LevelFactory = new Level1Factory();
             Map = LevelFactory.generateMap(this);
             _leaderboard = new HighscoreLeaderboardProxy();
+
+            _mediator = mediator;
 
             SetState(new GeneratedState()); // Initial state
         }
@@ -121,10 +129,38 @@ namespace SnakeGame.Services
                     Consumables = newConsumables;
                 }
             }
-            GameService.Instance.BroadcastGameState(GetGameState(), InstanceId);
+            _mediator.BroadcastGameState(GetGameState(), InstanceId);
         }
 
+        public GameMemento CreateMemento()
+        {
+            return new GameMemento(Map.Grid, Snakes, Consumables, LevelFactory);
+        }
 
+        public void RestoreMemento(GameMemento memento)
+        {
+            // Restore map
+            Map = LevelFactory.generateMap(this);
+            // Overwrite the map grid with saved state
+            var width = memento.MapState.GetLength(0);
+            var height = memento.MapState.GetLength(1);
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    Map.Grid[x, y] = memento.MapState[x, y];
+                }
+            }
+
+            // Restore snakes
+            Snakes = memento.SnakeState.ToDictionary(entry => entry.Key, entry => entry.Value);
+
+            // Restore consumables
+            Consumables = memento.ConsumableState.ToDictionary(entry => entry.Key, entry => entry.Value);
+
+            // Restore LevelFactory
+            LevelFactory = memento.LevelFactoryState;
+        }
         private object GetGameState()
         {
             // Construct the game state object to send to clients
@@ -217,14 +253,14 @@ namespace SnakeGame.Services
                 }
 
                 var sound = SoundPlayer.PlaySound("death");
-                GameService.Instance.PlaySound(sound, InstanceId);
+                _mediator.PlaySound(sound, InstanceId);
             }
         }
 
         public void AddSnake(string connectionId, string color, string name, int instance, bool isManual)
         {
             MovementTemplate template = isManual ? new ManualMovementTemplate() : new BasicMovementTemplate();
-            Snake snake = new Snake(connectionId, GetRandomEmptyPosition(), GameService.Instance, color, name, template);
+            Snake snake = new Snake(connectionId, GetRandomEmptyPosition(), _mediator, color, name, template);
             if(Snakes.TryAdd(snake.ConnectionId, snake))
             {
                 SnakeComposite.Add(snake);
@@ -234,7 +270,7 @@ namespace SnakeGame.Services
                 Map.Grid[head.X, head.Y] = Map.CellType.Snake;
 
                 var sound = SoundPlayer.PlaySound("snake_spawn");
-                GameService.Instance.PlaySound(sound, InstanceId);
+                _mediator.PlaySound(sound, InstanceId);
             }
         }
 
@@ -244,7 +280,6 @@ namespace SnakeGame.Services
 
         private void UpdateGameState()
         {
-            var snakeIterator = GetIterator();
 
             // Temporarily disable iterator here
             // Changed it to composite pattern
@@ -259,6 +294,7 @@ namespace SnakeGame.Services
             //}
 
             SnakeComposite.Move();
+            var snakeIterator = GetIterator();
 
             snakeIterator = GetIterator();
 
@@ -275,12 +311,13 @@ namespace SnakeGame.Services
                     if (_leaderboard.IsHighScore(score))
                     {
                         _leaderboard.AddScore(score, snake.Name);
-                        GameService.Instance.UpdateGlobalLeaderboard();
+                        _mediator.UpdateGlobalLeaderboard();
 
                     }
                     RemoveSnake(snake.ConnectionId);
                 }
             }
         }
+        
     }
 }
