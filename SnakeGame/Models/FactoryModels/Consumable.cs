@@ -1,6 +1,7 @@
 ﻿using SnakeGame.Models.FactoryModels.Fruit.Attributes;
 using SnakeGame.Services;
 using SnakeGame.Composites;
+using SnakeGame.Visitor;
 
 namespace SnakeGame.Models.FactoryModels
 {
@@ -82,6 +83,11 @@ namespace SnakeGame.Models.FactoryModels
                 Position = newPosition;
                 Instance.Map.Grid[Position.X, Position.Y] = Map.CellType.Consumable;
             }
+        }
+
+        public void Accept(IVisitor visitor)
+        {
+            visitor.Visit(this);
         }
     }
 }

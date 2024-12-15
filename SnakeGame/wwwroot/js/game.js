@@ -324,6 +324,9 @@ connection.on("GameEnded", function () {
     updateUIBasedOnState();
 });
 
+
+
+
 connection.on("PlaySound", function (soundFile) {
     const audio = new Audio(`/Sounds/${soundFile}`);
     audio.play().catch(error => console.error("Error playing sound:", error, " soundFile: ", soundFile));

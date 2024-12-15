@@ -5,6 +5,7 @@ using SnakeGame.Composites;
 using SnakeGame.Interpreter;
 using SnakeGame.Mediator;
 using Microsoft.AspNetCore.Components.Forms;
+using SnakeGame.Visitor;
 
 namespace SnakeGame.Models
 {
@@ -123,6 +124,11 @@ namespace SnakeGame.Models
             var context = new Context(this, command);
             var expression = Parser.Parse(context);
             expression.Interpret(context);
+        }
+
+        public void Accept(IVisitor visitor)
+        {
+            visitor.Visit(this);
         }
 
     }
