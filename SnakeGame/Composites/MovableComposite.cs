@@ -1,4 +1,6 @@
-﻿namespace SnakeGame.Composites
+﻿using SnakeGame.Visitor;
+
+namespace SnakeGame.Composites
 {
     public class MovableComposite : IMovable
     {
@@ -28,6 +30,10 @@
             {
                 movable.GenerateNewPosition();
             }
+        }
+        public void Accept(IVisitor visitor)
+        {
+            visitor.Visit(this);
         }
 
         // If this gets uncommented, it gives external users direct access to Composite components, therefore moving from reduced visibility to a full visibility component

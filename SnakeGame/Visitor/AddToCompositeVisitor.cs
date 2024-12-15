@@ -15,6 +15,12 @@ namespace SnakeGame.Visitor
             _snakeComposite = snakeComposite;
         }
 
+        public void Visit(MovableComposite composite)
+        {
+            // Could choose dynamically where to add based on logic.
+            // Not worth implementing with 2 composites.
+        }
+
         public void Visit(Snake snake)
         {
             _snakeComposite.Add(snake);
