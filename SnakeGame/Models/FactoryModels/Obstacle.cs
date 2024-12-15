@@ -1,12 +1,16 @@
-﻿using SnakeGame.Iterators;
+﻿using SnakeGame.Factories;
+using SnakeGame.Iterators;
 
 namespace SnakeGame.Models.FactoryModels
 {
-    public abstract class Obstacle : IPrototype<Obstacle>
+    public class Obstacle
     {
-        public int[,] Points { get; set; }
+        public string Name { get; set; }
 
-        public abstract Obstacle Clone();
+        public Obstacle(string name)
+        {
+            Name = name;
+        }
 
         public bool CheckPlacement(Point position, Map map)
         {
@@ -47,7 +51,7 @@ namespace SnakeGame.Models.FactoryModels
 
         public IIterator<Point> GetIterator()
         {
-            return new ObstaclePointIterator(Points);
+            return new ObstaclePointIterator(ObstacleManager.GetObstacleFlyweight(Name).Points);
         }
     }
 }

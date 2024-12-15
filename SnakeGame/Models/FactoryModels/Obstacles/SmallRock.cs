@@ -1,6 +1,8 @@
-﻿namespace SnakeGame.Models.FactoryModels
+﻿using SnakeGame.Models.FactoryModels.Obstacles;
+
+namespace SnakeGame.Models.FactoryModels
 {
-    public class SmallRock : Obstacle
+    public class SmallRock : ObstacleFlyweight
     {
         public SmallRock()
         {
@@ -9,15 +11,6 @@
                 { 1, 1},
                 { 1, 1},
             };
-        }
-
-        public override Obstacle Clone()
-        {
-            var clonedRock = new SmallRock
-            {
-                Points = (int[,])Points.Clone() // Deep copy of the Points array
-            };
-            return clonedRock;
         }
     }
 }
