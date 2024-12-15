@@ -249,6 +249,7 @@ namespace SnakeGame.Services
         {
             if (Snakes.Remove(connectionId, out Snake snake))
             {
+                snake.IsAlive = false;
                 var bodyIterator = snake.GetIterator();
 
                 // Clear the snake's body from the map
