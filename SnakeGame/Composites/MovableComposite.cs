@@ -1,6 +1,4 @@
-﻿using SnakeGame.Iterators;
-
-namespace SnakeGame.Composites
+﻿namespace SnakeGame.Composites
 {
     public class MovableComposite : IMovable
     {

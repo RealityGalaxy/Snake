@@ -10,6 +10,7 @@ using SnakeGame.States;
 using SnakeGame.Mediator;
 using Microsoft.AspNetCore.Components.Forms;
 using SnakeGame.Mementos;
+using SnakeGame.Visitor;
 
 namespace SnakeGame.Services
 {
@@ -28,6 +29,7 @@ namespace SnakeGame.Services
         public SoundPlayer SoundPlayer { get; set; } = new SoundPlayer();
         public MovableComposite SnakeComposite { get; set; } = new MovableComposite();
         public MovableComposite ConsumableComposite { get; set; } = new MovableComposite();
+        public AddToCompositeVisitor AddToCompositeVisitor { get; set; }
         private int _timerDuration = 120; // 2 minutes;
         private int _timerRemaining;
 
@@ -43,6 +45,8 @@ namespace SnakeGame.Services
             _leaderboard = new HighscoreLeaderboardProxy();
 
             _mediator = mediator;
+
+            AddToCompositeVisitor = new AddToCompositeVisitor(ConsumableComposite, SnakeComposite);
 
             SetState(new GeneratedState()); // Initial state
         }
@@ -101,7 +105,7 @@ namespace SnakeGame.Services
                 {
                     foodCounter = foodTimer;
                     Consumable food = LevelFactory.generateConsumable(this);
-                    ConsumableComposite.Add(food);
+                    AddToCompositeVisitor.Visit(food);
 
                     var sound = SoundPlayer.PlaySound("fruit_spawn");
                     GameService.Instance.PlaySound(sound, InstanceId);
@@ -116,7 +120,7 @@ namespace SnakeGame.Services
 
                     foreach (var consumable in Consumables.Values)
                     {
-                        ConsumableComposite.Add(consumable);
+                        AddToCompositeVisitor.Visit(consumable);
                     }
 
                     ConsumableComposite.Move();
@@ -265,7 +269,7 @@ namespace SnakeGame.Services
             Snake snake = new Snake(connectionId, GetRandomEmptyPosition(), _mediator, color, name, template);
             if(Snakes.TryAdd(snake.ConnectionId, snake))
             {
-                SnakeComposite.Add(snake);
+                AddToCompositeVisitor.Visit(snake);
 
                 // Mark the initial position on the map
                 var head = snake.Body.First.Value;
